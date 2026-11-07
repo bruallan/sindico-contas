@@ -424,7 +424,7 @@ export function exportOfficialSchedulePdf(params: ExportSchedulePdfParams): void
       if (code === 'D' || code === 'N' || code === 'C' || code === 'CD' || code === 'CN') {
         workedCount++;
       }
-      const meta = SHIFT_META[code];
+      const meta = SHIFT_META[code] ?? SHIFT_META.FG;
       p1.fillAndStrokeRect(
         cx,
         curY,

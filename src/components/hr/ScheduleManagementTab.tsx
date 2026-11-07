@@ -20,9 +20,12 @@ import {
 } from '@/services/hrScheduleEngine';
 import { exportOfficialSchedulePdf } from '@/services/hrPdfExporter';
 import {
+  ComputedCellShift,
+  DayCoverageSummary,
   DayShiftAssignment,
   Employee,
   EmployeeScheduleConfig,
+  ShiftCode,
 } from '@/types/hr';
 import { getLocalTodayISO } from '@/utils/formatters';
 
@@ -249,14 +252,82 @@ export const ScheduleManagementTab: React.FC = () => {
     const valRec = validateSchedule(selectedYM, validatorName, validationNotes);
     const exportRec = markScheduleExported(selectedYM, validatorName);
 
+    // 1. Constrói matriz de turnos para cada colaborador x dia do mês
+    const pdfMatrix = new Map<string, ComputedCellShift>();
+    employees.forEach((emp) => {
+      const isCommercial =
+        emp.role_category === 'zeladoria' ||
+        emp.role_category === 'limpeza' ||
+        emp.role_category === 'administrativo';
+
+      days.forEach((d) => {
+        const key = `${emp.id}::${d.dateISO}`;
+        const assignment = doubleMatrix.get(key);
+        let shiftCode: ShiftCode = 'FG';
+
+        if (assignment?.isVacation) {
+          shiftCode = 'FE';
+        } else if (assignment?.day && assignment?.night) {
+          shiftCode = 'CD';
+        } else if (assignment?.day) {
+          shiftCode = isCommercial ? 'C' : 'D';
+        } else if (assignment?.night) {
+          shiftCode = 'N';
+        } else {
+          shiftCode = 'FG';
+        }
+
+        pdfMatrix.set(key, {
+          shift_code: shiftCode,
+          is_override: assignment?.isOverride,
+          reason: assignment?.notes,
+        });
+      });
+    });
+
+    // 2. Constrói resumo diário de cobertura 24/7 (equipes diurna e noturna)
+    const pdfDaysSummary: DayCoverageSummary[] = days.map((d) => {
+      const cov = doubleCoverage.find((c) => c.date_iso === d.dateISO);
+
+      const dayStaff = employees.filter((emp) => {
+        const a = doubleMatrix.get(`${emp.id}::${d.dateISO}`);
+        return Boolean(a?.day && !a?.isVacation);
+      });
+
+      const nightStaff = employees.filter((emp) => {
+        const a = doubleMatrix.get(`${emp.id}::${d.dateISO}`);
+        return Boolean(a?.night && !a?.isVacation);
+      });
+
+      const dayOk = !cov?.day_under_staffed;
+      const nightOk = !cov?.night_under_staffed;
+
+      const gaps: { shift: 'day' | 'night'; deficit: number }[] = [];
+      if (cov?.day_under_staffed) {
+        gaps.push({ shift: 'day', deficit: Math.max(1, minDayStaff - dayStaff.length) });
+      }
+      if (cov?.night_under_staffed) {
+        gaps.push({ shift: 'night', deficit: Math.max(1, minNightStaff - nightStaff.length) });
+      }
+
+      return {
+        date_iso: d.dateISO,
+        day_shift_staff: dayStaff,
+        night_shift_staff: nightStaff,
+        day_ok: dayOk,
+        night_ok: nightOk,
+        gaps,
+      };
+    });
+
     exportOfficialSchedulePdf({
       condoName: session?.client?.condo_name || 'Condomínio Residencial',
       syndicName: validatorName,
       config: bundle.config,
       yearMonth: selectedYM,
       employees,
-      matrix: new Map(),
-      daysSummary: [],
+      matrix: pdfMatrix,
+      daysSummary: pdfDaysSummary,
       validationRecord:
         exportRec ||
         valRec || {
