@@ -194,38 +194,38 @@ export const EmployeesAndDocsTab: React.FC = () => {
   return (
     <div className="space-y-4 font-sans">
       {/* Search and Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-none shadow-sm text-xs">
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs text-xs">
         <div className="flex items-center gap-2 flex-1 max-w-md">
           <div className="relative w-full">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar colaborador por nome ou função..."
-              className="w-full pl-8 pr-3 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs text-slate-900 dark:text-white rounded-none focus:outline-none focus:border-slate-500"
+              className="w-full pl-9 pr-3 py-2 border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-[#0E1B2B] text-xs text-slate-900 dark:text-white rounded-xl focus:outline-none focus:border-slate-400"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex border border-slate-300 dark:border-slate-700">
+          <div className="flex p-0.5 rounded-xl bg-slate-100 dark:bg-[#0E1B2B] border border-slate-200/80 dark:border-slate-800">
             <button
               onClick={() => setStatusFilter('ativo')}
-              className={`px-3 py-1.5 text-xs font-semibold ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 statusFilter === 'ativo'
-                  ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  ? 'bg-white text-slate-900 dark:bg-[#15263B] dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Ativos ({employees.filter((e) => e.status !== 'desligado').length})
             </button>
             <button
               onClick={() => setStatusFilter('desligado')}
-              className={`px-3 py-1.5 text-xs font-semibold ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors ${
                 statusFilter === 'desligado'
-                  ? 'bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900'
-                  : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                  ? 'bg-white text-slate-900 dark:bg-[#15263B] dark:text-white shadow-xs'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
               }`}
             >
               Desligados ({employees.filter((e) => e.status === 'desligado').length})
@@ -234,7 +234,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
 
           <button
             onClick={openNewEmployeeModal}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-800 hover:bg-slate-900 dark:bg-slate-200 dark:hover:bg-white text-white dark:text-slate-900 font-bold text-xs"
+            className="flex items-center gap-1.5 px-3.5 py-2 bg-[#0E1B2B] hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-[#0E1B2B] font-bold text-xs rounded-xl shadow-xs transition-colors"
           >
             <Plus className="w-3.5 h-3.5" />
             Cadastrar Colaborador
@@ -248,20 +248,20 @@ export const EmployeesAndDocsTab: React.FC = () => {
           <div
             key={emp.id}
             onClick={() => setSelectedEmployee(emp)}
-            className="p-3 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 hover:border-slate-500 dark:hover:border-slate-500 cursor-pointer rounded-none shadow-sm transition-all flex flex-col justify-between group"
+            className="p-4 bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 cursor-pointer rounded-2xl shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
           >
             <div>
               <div className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
                 {emp.full_name}
               </div>
-              <div className="text-xs text-slate-600 dark:text-slate-400 mt-1 truncate">
+              <div className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
                 {emp.role}
               </div>
             </div>
 
-            <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 font-mono">
+            <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-100 dark:border-slate-800 text-[10px] text-slate-400 font-mono">
               <span>{emp.registration_code}</span>
-              <span className="group-hover:text-slate-700 dark:group-hover:text-slate-200">
+              <span className="group-hover:text-slate-700 dark:group-hover:text-slate-200 font-sans font-medium">
                 Abrir ficha →
               </span>
             </div>
@@ -271,10 +271,10 @@ export const EmployeesAndDocsTab: React.FC = () => {
 
       {/* Employee Details Modal (Opened on Card Click) */}
       {selectedEmployee && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-5 space-y-4 text-xs">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#15263B] border border-slate-200 dark:border-slate-800 w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl p-6 rounded-2xl space-y-4 text-xs">
             {/* Header */}
-            <div className="flex items-start justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div className="flex items-start justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <div>
                 <h3 className="text-base font-bold text-slate-900 dark:text-white">
                   {selectedEmployee.full_name}
@@ -285,14 +285,14 @@ export const EmployeesAndDocsTab: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedEmployee(null)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-slate-600"
               >
-                <X className="w-4 h-4 text-slate-500" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
             {/* Prominent Button: Ver Pasta do Colaborador */}
-            <div className="p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-750 flex items-center justify-between">
+            <div className="p-3.5 bg-slate-50 dark:bg-[#0E1B2B]/60 border border-slate-200/80 dark:border-slate-800/80 rounded-xl flex items-center justify-between">
               <div>
                 <div className="font-bold text-slate-900 dark:text-white">
                   Pasta Eletrônica do Colaborador
@@ -303,7 +303,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
               </div>
               <button
                 onClick={() => openEmployeeFolder(selectedEmployee)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs shrink-0 shadow-sm"
+                className="flex items-center gap-1.5 px-3.5 py-2 bg-blue-700 hover:bg-blue-800 text-white font-semibold text-xs shrink-0 rounded-xl shadow-xs transition-colors"
               >
                 <FolderOpen className="w-4 h-4" />
                 Ver pasta do colaborador
@@ -311,7 +311,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
             </div>
 
             {/* General Info Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3 bg-white dark:bg-slate-850 border border-slate-200 dark:border-slate-800">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-3.5 bg-slate-50/50 dark:bg-[#0E1B2B]/40 border border-slate-200/70 dark:border-slate-800/70 rounded-xl">
               <div>
                 <span className="text-slate-500 block text-[10px]">CPF:</span>
                 <span className="font-mono font-medium text-slate-900 dark:text-white">
@@ -365,7 +365,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 </button>
               </div>
 
-              <div className="border border-slate-300 dark:border-slate-700 divide-y divide-slate-200 dark:divide-slate-800 bg-white dark:bg-slate-900">
+              <div className="border border-slate-200 dark:border-slate-800 rounded-xl divide-y divide-slate-100 dark:divide-slate-800 bg-white dark:bg-[#15263B] overflow-hidden">
                 {selectedEmpDocs.length === 0 ? (
                   <div className="py-6 text-center text-slate-400">
                     Nenhum documento cadastrado diretamente na ficha. Utilize a pasta do colaborador para anexar arquivos.
@@ -376,11 +376,11 @@ export const EmployeesAndDocsTab: React.FC = () => {
                     return (
                       <div
                         key={doc.id}
-                        className="p-2.5 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-850"
+                        className="p-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-[#0E1B2B]/40 transition-colors"
                       >
                         <div>
                           <div className="font-semibold text-slate-900 dark:text-white flex items-center gap-1.5">
-                            <FileText className="w-3.5 h-3.5 text-slate-500" />
+                            <FileText className="w-3.5 h-3.5 text-slate-400" />
                             {doc.title}
                           </div>
                           <div className="text-[11px] text-slate-500 mt-0.5">
@@ -391,7 +391,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                         <div className="flex items-center gap-3">
                           {doc.expiry_date ? (
                             <span
-                              className={`px-2 py-0.5 font-mono text-[10px] font-bold ${
+                              className={`px-2 py-0.5 rounded-md font-mono text-[10px] font-bold ${
                                 exp.status === 'expired'
                                   ? 'bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-300'
                                   : exp.status === 'expiring_soon'
@@ -407,7 +407,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
 
                           <button
                             onClick={() => deleteEmployeeDocument(doc.id)}
-                            className="text-slate-400 hover:text-red-600 p-1"
+                            className="text-slate-400 hover:text-red-600 p-1 rounded"
                             title="Excluir Documento"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -421,7 +421,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
             </div>
 
             {/* Modal Actions */}
-            <div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 onClick={() => {
                   if (confirm(`Deseja desligar / remover o colaborador "${selectedEmployee.full_name}"?`)) {
@@ -429,7 +429,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                     setSelectedEmployee(null);
                   }
                 }}
-                className="text-red-600 hover:text-red-700 font-semibold"
+                className="text-rose-600 hover:text-rose-700 font-semibold text-xs"
               >
                 Excluir Colaborador
               </button>
@@ -437,13 +437,13 @@ export const EmployeesAndDocsTab: React.FC = () => {
               <div className="flex gap-2">
                 <button
                   onClick={() => openEditEmployeeModal(selectedEmployee)}
-                  className="px-3 py-1.5 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
+                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 rounded-xl"
                 >
                   Editar Dados
                 </button>
                 <button
                   onClick={() => setSelectedEmployee(null)}
-                  className="px-4 py-1.5 bg-slate-800 text-white dark:bg-slate-200 dark:text-slate-900 font-bold"
+                  className="px-4 py-2 bg-[#0E1B2B] text-white dark:bg-slate-100 dark:text-[#0E1B2B] font-bold rounded-xl shadow-xs"
                 >
                   Fechar
                 </button>
@@ -453,7 +453,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
         </div>
       )}
 
-      {/* Windows File Explorer Modal (When "Ver pasta do colaborador" is clicked) */}
+      {/* Windows File Explorer Modal */}
       {isExplorerOpen && (
         <WindowsFileExplorer
           initialFolderId={explorerFolderId}
@@ -465,21 +465,21 @@ export const EmployeesAndDocsTab: React.FC = () => {
 
       {/* Create / Edit Employee Modal */}
       {isEmpModalOpen && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <form
             onSubmit={handleSaveEmployee}
-            className="bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 w-full max-w-md shadow-2xl p-5 space-y-3 text-xs"
+            className="bg-white dark:bg-[#15263B] border border-slate-200 dark:border-slate-800 w-full max-w-md shadow-2xl p-6 rounded-2xl space-y-3.5 text-xs"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                 {editingEmp ? 'Editar Colaborador' : 'Novo Colaborador'}
               </h3>
               <button
                 type="button"
                 onClick={() => setIsEmpModalOpen(false)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
               >
-                <X className="w-4 h-4 text-slate-500" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -491,7 +491,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 value={empFullName}
                 onChange={(e) => setEmpFullName(e.target.value)}
                 placeholder="Ex: Carlos Eduardo Mendes"
-                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
               />
             </div>
 
@@ -504,7 +504,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                   value={empRole}
                   onChange={(e) => setEmpRole(e.target.value)}
                   placeholder="Ex: Porteiro Líder"
-                  className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                 />
               </div>
 
@@ -515,7 +515,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                   required
                   value={empRegCode}
                   onChange={(e) => setEmpRegCode(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] font-mono text-slate-900 dark:text-white"
                 />
               </div>
             </div>
@@ -528,7 +528,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                   value={empCpf}
                   onChange={(e) => setEmpCpf(e.target.value)}
                   placeholder="000.000.000-00"
-                  className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] font-mono text-slate-900 dark:text-white"
                 />
               </div>
 
@@ -539,7 +539,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                   value={empPhone}
                   onChange={(e) => setEmpPhone(e.target.value)}
                   placeholder="(11) 98765-4321"
-                  className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 font-mono"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] font-mono text-slate-900 dark:text-white"
                 />
               </div>
             </div>
@@ -551,7 +551,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                   type="date"
                   value={empAdmission}
                   onChange={(e) => setEmpAdmission(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                 />
               </div>
 
@@ -561,22 +561,22 @@ export const EmployeesAndDocsTab: React.FC = () => {
                   type="date"
                   value={empBirth}
                   onChange={(e) => setEmpBirth(e.target.value)}
-                  className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                 />
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setIsEmpModalOpen(false)}
-                className="px-3 py-1.5 border border-slate-300 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 font-bold text-xs"
+                className="px-4 py-2 bg-[#0E1B2B] hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-[#0E1B2B] font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 Salvar Colaborador
               </button>
@@ -587,21 +587,21 @@ export const EmployeesAndDocsTab: React.FC = () => {
 
       {/* Add Document Modal */}
       {isDocModalOpen && (
-        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
           <form
             onSubmit={handleSaveDocument}
-            className="bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 w-full max-w-sm shadow-2xl p-5 space-y-3 text-xs"
+            className="bg-white dark:bg-[#15263B] border border-slate-200 dark:border-slate-800 w-full max-w-sm shadow-2xl p-6 rounded-2xl space-y-3.5 text-xs"
           >
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-2">
+            <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-3">
               <h3 className="font-bold text-sm text-slate-900 dark:text-white">
                 Adicionar Documento / ASO
               </h3>
               <button
                 type="button"
                 onClick={() => setIsDocModalOpen(false)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
               >
-                <X className="w-4 h-4 text-slate-500" />
+                <X className="w-4 h-4" />
               </button>
             </div>
 
@@ -613,7 +613,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 value={docTitle}
                 onChange={(e) => setDocTitle(e.target.value)}
                 placeholder="Ex: ASO Periódico 2026"
-                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
               />
             </div>
 
@@ -622,7 +622,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
               <select
                 value={docType}
                 onChange={(e) => setDocType(e.target.value as any)}
-                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
               >
                 <option value="aso_admissional">ASO Admissional</option>
                 <option value="aso_periodico">ASO Periódico</option>
@@ -641,7 +641,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 value={docIssuer}
                 onChange={(e) => setDocIssuer(e.target.value)}
                 placeholder="Ex: Clínica Ocupacional Santa Maria"
-                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
               />
             </div>
 
@@ -651,7 +651,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 type="date"
                 value={docIssueDate}
                 onChange={(e) => setDocIssueDate(e.target.value)}
-                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
               />
             </div>
 
@@ -661,21 +661,21 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 type="date"
                 value={docExpiryDate}
                 onChange={(e) => setDocExpiryDate(e.target.value)}
-                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-3 border-t border-slate-200 dark:border-slate-800">
+            <div className="flex justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
               <button
                 type="button"
                 onClick={() => setIsDocModalOpen(false)}
-                className="px-3 py-1.5 border border-slate-300 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300"
+                className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-xs text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="px-4 py-1.5 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 font-bold text-xs"
+                className="px-4 py-2 bg-[#0E1B2B] hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-[#0E1B2B] font-bold text-xs rounded-xl shadow-xs transition-colors"
               >
                 Salvar Documento
               </button>

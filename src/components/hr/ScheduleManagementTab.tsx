@@ -305,29 +305,29 @@ export const ScheduleManagementTab: React.FC = () => {
 
         {/* Minimum Staff Parameters */}
         <div className="flex flex-wrap items-center gap-2.5">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0E1B2B]/60 border border-slate-200/60 dark:border-slate-800/60">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0E1B2B]/60 border border-slate-200/70 dark:border-slate-800/70">
             <Sun className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-slate-600 dark:text-slate-400 font-medium">Mín. Dia:</span>
+            <span className="text-slate-600 dark:text-slate-300 font-medium">Mín. Dia:</span>
             <input
               type="number"
               min="0"
               max="20"
               value={minDayStaff}
               onChange={(e) => handleMinDayChange(parseInt(e.target.value) || 0)}
-              className="w-10 px-1 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-center font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none"
+              className="w-10 px-1 py-0.5 rounded-lg bg-white dark:bg-[#15263B] text-center font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none"
             />
           </div>
 
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0E1B2B]/60 border border-slate-200/60 dark:border-slate-800/60">
-            <Moon className="w-3.5 h-3.5 text-indigo-500" />
-            <span className="text-slate-600 dark:text-slate-400 font-medium">Mín. Noite:</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-50 dark:bg-[#0E1B2B]/60 border border-slate-200/70 dark:border-slate-800/70">
+            <Moon className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="text-slate-600 dark:text-slate-300 font-medium">Mín. Noite:</span>
             <input
               type="number"
               min="0"
               max="20"
               value={minNightStaff}
               onChange={(e) => handleMinNightChange(parseInt(e.target.value) || 0)}
-              className="w-10 px-1 py-0.5 rounded-lg bg-white dark:bg-slate-800 text-center font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none"
+              className="w-10 px-1 py-0.5 rounded-lg bg-white dark:bg-[#15263B] text-center font-bold text-slate-900 dark:text-white border border-slate-200 dark:border-slate-700 focus:outline-none"
             />
           </div>
 
@@ -347,7 +347,7 @@ export const ScheduleManagementTab: React.FC = () => {
                 clearMonthOverridesV2(selectedYM);
               }
             }}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-medium transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] hover:bg-slate-50 dark:hover:bg-slate-800/70 text-slate-700 dark:text-slate-300 font-medium transition-colors"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             Limpar Ajustes
@@ -355,7 +355,7 @@ export const ScheduleManagementTab: React.FC = () => {
 
           <button
             onClick={() => setIsExportModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-slate-900 font-semibold shadow-sm transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#0E1B2B] hover:bg-slate-800 dark:bg-slate-100 dark:hover:bg-white text-white dark:text-[#0E1B2B] font-semibold shadow-xs transition-all"
           >
             <Download className="w-3.5 h-3.5" />
             Exportar PDF
@@ -363,17 +363,16 @@ export const ScheduleManagementTab: React.FC = () => {
         </div>
       </div>
 
-
-      {/* Main Grid Table Container: Rounded-2xl, Borderless Feel, Modern Floating Capsules */}
-      <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-sm overflow-hidden">
+      {/* Main Grid Table Container: Rounded-2xl, Muted High-End Palette */}
+      <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800/80 rounded-2xl shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full border-collapse text-left text-xs font-sans">
             <thead>
               {/* Top Header: Days of the Month */}
-              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 select-none">
+              <tr className="border-b border-slate-200/70 dark:border-slate-800/70 select-none">
                 <th
                   rowSpan={2}
-                  className="py-3 px-3.5 font-bold text-slate-900 dark:text-white min-w-[210px] sticky left-0 z-20 bg-slate-50 dark:bg-[#15263B] text-xs border-r border-slate-200/60 dark:border-slate-800/60"
+                  className="py-3 px-3.5 font-bold text-slate-900 dark:text-slate-100 min-w-[210px] sticky left-0 z-20 bg-slate-100/90 dark:bg-[#0E1B2B] text-xs border-r border-slate-200/70 dark:border-slate-800/70"
                 >
                   COLABORADOR ({employees.length})
                 </th>
@@ -387,15 +386,15 @@ export const ScheduleManagementTab: React.FC = () => {
                       colSpan={2}
                       className={`py-1.5 px-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60 transition-colors ${
                         isSun
-                          ? 'bg-purple-50/80 text-purple-900 dark:bg-purple-950/30 dark:text-purple-300'
-                          : 'bg-slate-50/50 text-slate-800 dark:bg-[#15263B] dark:text-slate-200'
+                          ? 'bg-slate-200/50 text-slate-900 dark:bg-[#0B1522] dark:text-slate-100'
+                          : 'bg-slate-100/50 text-slate-700 dark:bg-[#112032] dark:text-slate-300'
                       }`}
                     >
                       <div className="text-[12px] font-bold leading-tight">{d.day}</div>
                       <div
                         className={`text-[9px] font-semibold uppercase tracking-wider ${
                           isSun
-                            ? 'text-purple-700 dark:text-purple-400'
+                            ? 'text-amber-600 dark:text-amber-400 font-bold'
                             : 'text-slate-400 dark:text-slate-500'
                         }`}
                       >
@@ -408,7 +407,7 @@ export const ScheduleManagementTab: React.FC = () => {
                 <th
                   rowSpan={2}
                   colSpan={2}
-                  className="py-2 px-1 text-center font-bold bg-slate-50 dark:bg-[#15263B] text-slate-800 dark:text-slate-200 min-w-[70px] border-l border-slate-200/60 dark:border-slate-800/60"
+                  className="py-2 px-1 text-center font-bold bg-slate-100/90 dark:bg-[#0E1B2B] text-slate-800 dark:text-slate-200 min-w-[70px] border-l border-slate-200/70 dark:border-slate-800/70"
                 >
                   TOTAL
                   <div className="text-[9px] text-slate-400 font-normal">D / N</div>
@@ -416,12 +415,12 @@ export const ScheduleManagementTab: React.FC = () => {
               </tr>
 
               {/* Sub-Header: D and N columns for each day */}
-              <tr className="border-b border-slate-200/80 dark:border-slate-800/80 text-[10px] select-none font-semibold">
+              <tr className="border-b border-slate-200/70 dark:border-slate-800/70 text-[10px] select-none font-semibold">
                 {days.map((d) => {
                   const isSun = d.isSunday;
                   const subBg = isSun
-                    ? 'bg-purple-50/50 text-purple-700 dark:bg-purple-950/20 dark:text-purple-400'
-                    : 'bg-slate-50/30 text-slate-400 dark:bg-[#15263B] dark:text-slate-500';
+                    ? 'bg-slate-200/30 text-amber-700/80 dark:bg-[#0B1522]/80 dark:text-amber-400/80'
+                    : 'bg-slate-50/50 text-slate-400 dark:bg-[#15263B] dark:text-slate-500';
 
                   return (
                     <React.Fragment key={`sub-${d.dateISO}`}>
@@ -448,23 +447,29 @@ export const ScheduleManagementTab: React.FC = () => {
                 let totalEmpDay = 0;
                 let totalEmpNight = 0;
 
+                const isEven = empIdx % 2 === 0;
+
                 return (
                   <tr
                     key={emp.id}
                     className={`transition-colors ${
-                      empIdx % 2 === 0
+                      isEven
                         ? 'bg-white dark:bg-[#15263B]'
-                        : 'bg-slate-50/40 dark:bg-[#0E1B2B]/20'
-                    } hover:bg-blue-50/30 dark:hover:bg-slate-800/40`}
+                        : 'bg-slate-50/40 dark:bg-[#112032]'
+                    } hover:bg-slate-100/60 dark:hover:bg-[#1A2E44]`}
                   >
                     {/* Employee Name (Clickable to open Rule settings) */}
                     <td
                       onClick={() => openEmployeeRules(emp)}
-                      className="py-2 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 cursor-pointer sticky left-0 z-10 bg-inherit group select-none"
+                      className={`py-2 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 cursor-pointer sticky left-0 z-10 ${
+                        isEven
+                          ? 'bg-white dark:bg-[#15263B]'
+                          : 'bg-slate-50 dark:bg-[#112032]'
+                      } group select-none`}
                       title="Clique para configurar as regras deste colaborador"
                     >
                       <div className="flex items-center justify-between gap-1.5">
-                        <div className="truncate font-semibold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 text-xs">
+                        <div className="truncate font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 text-xs">
                           {emp.full_name}
                         </div>
                         <Sliders className="w-3.5 h-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
@@ -474,7 +479,7 @@ export const ScheduleManagementTab: React.FC = () => {
                       </div>
                     </td>
 
-                    {/* Day and Night sub-columns (Capsules with NO number 1) */}
+                    {/* Day and Night sub-columns (Harmonized, Elegant Shift Pills) */}
                     {days.map((d) => {
                       const key = `${emp.id}::${d.dateISO}`;
                       const assignment: DayShiftAssignment = doubleMatrix.get(key) || {
@@ -486,13 +491,16 @@ export const ScheduleManagementTab: React.FC = () => {
                       if (assignment.night) totalEmpNight++;
 
                       const isVac = assignment.isVacation;
+                      const isSun = d.isSunday;
 
                       return (
                         <React.Fragment key={key}>
                           {/* Day Cell */}
                           <td
                             onClick={() => !isVac && toggleCellShift(emp.id, d.dateISO, 'day')}
-                            className="w-7 h-8 p-0.5 text-center select-none cursor-pointer"
+                            className={`w-7 h-8 p-0.5 text-center select-none cursor-pointer ${
+                              isSun ? 'bg-slate-100/20 dark:bg-[#0E1B2B]/15' : ''
+                            }`}
                             title={
                               isVac
                                 ? 'Em férias regulamentares'
@@ -502,20 +510,22 @@ export const ScheduleManagementTab: React.FC = () => {
                             }
                           >
                             {isVac ? (
-                              <div className="h-6 w-full rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center justify-center">
+                              <div className="h-6 w-full rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/40 font-bold text-[10px] flex items-center justify-center">
                                 F
                               </div>
                             ) : assignment.day ? (
-                              <div className="h-6 w-full rounded-md bg-emerald-500 hover:bg-emerald-600 transition-all shadow-sm active:scale-95" />
+                              <div className="h-6 w-full rounded-md bg-emerald-600 dark:bg-[#165B43] dark:border dark:border-[#2AC38B]/40 hover:bg-emerald-700 dark:hover:bg-[#1E7758] transition-all shadow-xs active:scale-95" />
                             ) : (
-                              <div className="h-6 w-full rounded-md hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors" />
+                              <div className="h-6 w-full rounded-md hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors" />
                             )}
                           </td>
 
                           {/* Night Cell */}
                           <td
                             onClick={() => !isVac && toggleCellShift(emp.id, d.dateISO, 'night')}
-                            className="w-7 h-8 p-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60 select-none cursor-pointer"
+                            className={`w-7 h-8 p-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60 select-none cursor-pointer ${
+                              isSun ? 'bg-slate-100/20 dark:bg-[#0E1B2B]/15' : ''
+                            }`}
                             title={
                               isVac
                                 ? 'Em férias regulamentares'
@@ -525,13 +535,13 @@ export const ScheduleManagementTab: React.FC = () => {
                             }
                           >
                             {isVac ? (
-                              <div className="h-6 w-full rounded-md bg-blue-500/15 text-blue-600 dark:text-blue-400 font-bold text-[10px] flex items-center justify-center">
+                              <div className="h-6 w-full rounded-md bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200/80 dark:border-sky-800/40 font-bold text-[10px] flex items-center justify-center">
                                 F
                               </div>
                             ) : assignment.night ? (
-                              <div className="h-6 w-full rounded-md bg-emerald-500 hover:bg-emerald-600 transition-all shadow-sm active:scale-95" />
+                              <div className="h-6 w-full rounded-md bg-emerald-600 dark:bg-[#165B43] dark:border dark:border-[#2AC38B]/40 hover:bg-emerald-700 dark:hover:bg-[#1E7758] transition-all shadow-xs active:scale-95" />
                             ) : (
-                              <div className="h-6 w-full rounded-md hover:bg-slate-100 dark:hover:bg-slate-800/60 transition-colors" />
+                              <div className="h-6 w-full rounded-md hover:bg-slate-200/50 dark:hover:bg-slate-800/60 transition-colors" />
                             )}
                           </td>
                         </React.Fragment>
@@ -539,10 +549,10 @@ export const ScheduleManagementTab: React.FC = () => {
                     })}
 
                     {/* Total for this employee in month */}
-                    <td className="w-8 text-center font-bold text-slate-700 dark:text-slate-300 bg-slate-50/50 dark:bg-[#0E1B2B]/30 border-l border-slate-200/60 dark:border-slate-800/60">
+                    <td className="w-8 text-center font-bold text-slate-800 dark:text-slate-200 bg-slate-50/70 dark:bg-[#0E1B2B]/40 border-l border-slate-200/60 dark:border-slate-800/60 tabular-nums">
                       {totalEmpDay}
                     </td>
-                    <td className="w-8 text-center font-bold text-slate-700 dark:text-slate-300 bg-slate-100/50 dark:bg-[#0E1B2B]/50">
+                    <td className="w-8 text-center font-bold text-slate-800 dark:text-slate-200 bg-slate-100/70 dark:bg-[#0E1B2B]/60 tabular-nums">
                       {totalEmpNight}
                     </td>
                   </tr>
@@ -550,11 +560,11 @@ export const ScheduleManagementTab: React.FC = () => {
               })}
             </tbody>
 
-            {/* Bottom Totals Footer (Clean, Rounded alerts for deficits) */}
-            <tfoot className="border-t border-slate-200 dark:border-slate-800 select-none text-[11px]">
+            {/* Bottom Totals Footer (Clean, Harmonious & High-Contrast in Both Modes) */}
+            <tfoot className="border-t border-slate-200/80 dark:border-slate-800 select-none text-[11px]">
               {/* Total Geral Dia */}
-              <tr className="bg-slate-50/70 dark:bg-[#0E1B2B]/40 font-semibold border-b border-slate-200/60 dark:border-slate-800/60">
-                <td className="py-2.5 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 sticky left-0 z-10 bg-inherit text-slate-800 dark:text-slate-200">
+              <tr className="bg-slate-50/90 dark:bg-[#0E1B2B]/80 font-semibold border-b border-slate-200/60 dark:border-slate-800/60">
+                <td className="py-2.5 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 sticky left-0 z-10 bg-slate-50 dark:bg-[#0E1B2B] text-slate-800 dark:text-slate-200">
                   Total Dia (D)
                 </td>
                 {days.map((d) => {
@@ -568,25 +578,25 @@ export const ScheduleManagementTab: React.FC = () => {
                       className="py-1 px-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60"
                     >
                       {isUnder ? (
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-500 text-white font-extrabold text-[11px] shadow-sm">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-700 border border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/40 font-extrabold text-[11px]">
                           {count}
                         </span>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300 font-bold">
+                        <span className="text-slate-700 dark:text-slate-300 font-bold tabular-nums">
                           {count}
                         </span>
                       )}
                     </td>
                   );
                 })}
-                <td colSpan={2} className="py-1 px-1 text-center font-extrabold bg-slate-100 dark:bg-[#0E1B2B]/80 text-slate-900 dark:text-white border-l border-slate-200/60 dark:border-slate-800/60">
+                <td colSpan={2} className="py-1 px-1 text-center font-extrabold bg-slate-100 dark:bg-[#0E1B2B] text-slate-900 dark:text-white border-l border-slate-200/60 dark:border-slate-800/60 tabular-nums">
                   {doubleCoverage.reduce((acc, c) => acc + c.day_active_count, 0)}
                 </td>
               </tr>
 
               {/* Total Geral Noite */}
-              <tr className="bg-slate-50/70 dark:bg-[#0E1B2B]/40 font-semibold border-b border-slate-200/60 dark:border-slate-800/60">
-                <td className="py-2.5 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 sticky left-0 z-10 bg-inherit text-slate-800 dark:text-slate-200">
+              <tr className="bg-slate-50/90 dark:bg-[#0E1B2B]/80 font-semibold border-b border-slate-200/60 dark:border-slate-800/60">
+                <td className="py-2.5 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 sticky left-0 z-10 bg-slate-50 dark:bg-[#0E1B2B] text-slate-800 dark:text-slate-200">
                   Total Noite (N)
                 </td>
                 {days.map((d) => {
@@ -600,24 +610,24 @@ export const ScheduleManagementTab: React.FC = () => {
                       className="py-1 px-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60"
                     >
                       {isUnder ? (
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-500 text-white font-extrabold text-[11px] shadow-sm">
+                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-rose-100 text-rose-700 border border-rose-300 dark:bg-rose-500/20 dark:text-rose-300 dark:border-rose-500/40 font-extrabold text-[11px]">
                           {count}
                         </span>
                       ) : (
-                        <span className="text-slate-700 dark:text-slate-300 font-bold">
+                        <span className="text-slate-700 dark:text-slate-300 font-bold tabular-nums">
                           {count}
                         </span>
                       )}
                     </td>
                   );
                 })}
-                <td colSpan={2} className="py-1 px-1 text-center font-extrabold bg-slate-100 dark:bg-[#0E1B2B]/80 text-slate-900 dark:text-white border-l border-slate-200/60 dark:border-slate-800/60">
+                <td colSpan={2} className="py-1 px-1 text-center font-extrabold bg-slate-100 dark:bg-[#0E1B2B] text-slate-900 dark:text-white border-l border-slate-200/60 dark:border-slate-800/60 tabular-nums">
                   {doubleCoverage.reduce((acc, c) => acc + c.night_active_count, 0)}
                 </td>
               </tr>
 
               {/* Total Geral Diário (Dia + Noite) */}
-              <tr className="bg-slate-100/90 dark:bg-[#0E1B2B] text-slate-900 dark:text-white font-bold">
+              <tr className="bg-slate-100 dark:bg-[#0B1522] text-slate-900 dark:text-white font-bold">
                 <td className="py-2.5 px-3.5 border-r border-slate-200/60 dark:border-slate-800/60 sticky left-0 z-10 bg-inherit font-extrabold">
                   Total Geral (Dia + Noite)
                 </td>
@@ -628,13 +638,13 @@ export const ScheduleManagementTab: React.FC = () => {
                     <td
                       key={`tot-all-${d.dateISO}`}
                       colSpan={2}
-                      className="py-1 px-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60 font-extrabold text-slate-800 dark:text-slate-100"
+                      className="py-1 px-0.5 text-center border-r border-slate-200/60 dark:border-slate-800/60 font-extrabold text-slate-800 dark:text-slate-100 tabular-nums"
                     >
                       {count}
                     </td>
                   );
                 })}
-                <td colSpan={2} className="py-1 px-1 text-center font-black bg-slate-200 dark:bg-slate-800 text-slate-950 dark:text-white border-l border-slate-200/60 dark:border-slate-800/60">
+                <td colSpan={2} className="py-1 px-1 text-center font-black bg-slate-200/80 dark:bg-[#0E1B2B] text-slate-950 dark:text-white border-l border-slate-200/60 dark:border-slate-800/60 tabular-nums">
                   {doubleCoverage.reduce((acc, c) => acc + c.total_active_count, 0)}
                 </td>
               </tr>

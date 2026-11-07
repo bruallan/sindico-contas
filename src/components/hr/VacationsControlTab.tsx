@@ -133,7 +133,7 @@ export const VacationsControlTab: React.FC = () => {
     <div className="space-y-4 font-sans">
       {/* KPIs de Férias */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3 shadow-sm">
+        <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               Em Gozo de Férias Hoje
@@ -145,7 +145,7 @@ export const VacationsControlTab: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3 shadow-sm">
+        <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
           <div className="flex items-center justify-between">
             <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               Férias Programadas
@@ -157,7 +157,7 @@ export const VacationsControlTab: React.FC = () => {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
+        <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-xs flex items-center justify-between">
           <div>
             <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               Agendamento
@@ -167,7 +167,7 @@ export const VacationsControlTab: React.FC = () => {
           <button
             type="button"
             onClick={() => openScheduleModal()}
-            className="h-8 px-3 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 text-xs font-bold inline-flex items-center gap-1.5"
+            className="h-9 px-3.5 bg-[#0E1B2B] hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-[#0E1B2B] text-xs font-bold inline-flex items-center gap-1.5 rounded-xl shadow-xs transition-colors"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Programar Férias</span>
@@ -176,14 +176,14 @@ export const VacationsControlTab: React.FC = () => {
       </div>
 
       {/* Cronograma de Férias Registradas */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
-        <div className="px-3.5 py-2.5 border-b border-slate-300 dark:border-slate-700 flex items-center justify-between bg-slate-100 dark:bg-slate-800">
+      <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 rounded-2xl shadow-xs overflow-hidden">
+        <div className="px-4 py-3 border-b border-slate-200/80 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-[#0E1B2B]/60">
           <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
             Cronograma de Férias (Ativas, Programadas e Histórico)
           </h3>
         </div>
 
-        <div className="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
+        <div className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
           {sortedVacations.length === 0 ? (
             <div className="p-8 text-center text-slate-400">
               Nenhum período de férias cadastrado até o momento.
@@ -197,7 +197,7 @@ export const VacationsControlTab: React.FC = () => {
               return (
                 <div
                   key={vac.id}
-                  className="p-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-850"
+                  className="p-3.5 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-[#0E1B2B]/40 transition-colors"
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
@@ -207,17 +207,17 @@ export const VacationsControlTab: React.FC = () => {
                       <span className="text-slate-500">({emp?.role})</span>
 
                       {vac.status === 'em_andamento' ? (
-                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 inline-flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 inline-flex items-center gap-1">
                           <Palmtree className="h-3 w-3" />
                           Em Andamento
                         </span>
                       ) : vac.status === 'programada' ? (
-                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 inline-flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 inline-flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           Programada
                         </span>
                       ) : (
-                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 inline-flex items-center gap-1">
+                        <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 inline-flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" />
                           Concluída
                         </span>
@@ -226,7 +226,7 @@ export const VacationsControlTab: React.FC = () => {
 
                     <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600 dark:text-slate-400">
                       <span className="inline-flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
-                        <CalendarDays className="h-3.5 w-3.5" />
+                        <CalendarDays className="h-3.5 w-3.5 text-slate-400" />
                         Gozo: {formatDateBR(vac.start_date)} até {formatDateBR(vac.end_date)} ({vac.days} dias)
                       </span>
                       <span className="text-[11px]">
@@ -260,7 +260,7 @@ export const VacationsControlTab: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => openEditModal(vac)}
-                      className="h-7 px-2.5 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium inline-flex items-center gap-1"
+                      className="h-8 px-3 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs font-medium inline-flex items-center gap-1.5 rounded-xl transition-colors"
                     >
                       <Pencil className="h-3 w-3" />
                       <span>Editar</span>
@@ -268,7 +268,7 @@ export const VacationsControlTab: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => deleteVacation(vac.id)}
-                      className="h-7 w-7 border border-slate-300 dark:border-slate-700 hover:bg-red-50 text-slate-500 hover:text-red-600 inline-flex items-center justify-center"
+                      className="h-8 w-8 border border-slate-200 dark:border-slate-700 hover:bg-red-50 dark:hover:bg-red-950/30 text-slate-400 hover:text-red-600 inline-flex items-center justify-center rounded-xl transition-colors"
                       title="Excluir registro de férias"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
@@ -282,11 +282,11 @@ export const VacationsControlTab: React.FC = () => {
       </div>
 
       {/* Visão Geral dos Colaboradores para Planejamento */}
-      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3.5 shadow-sm">
+      <div className="bg-white dark:bg-[#15263B] border border-slate-200/80 dark:border-slate-800 p-4 rounded-2xl shadow-xs">
         <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
           Painel de Planejamento de Férias • Colaboradores ({employees.length})
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
           {employees.map((emp) => {
             const empVacs = vacations.filter((v) => v.employee_id === emp.id);
             const nextOrCurrent = empVacs.find(
@@ -296,11 +296,11 @@ export const VacationsControlTab: React.FC = () => {
             return (
               <div
                 key={emp.id}
-                className="rounded-lg border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs"
+                className="rounded-xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-[#0E1B2B]/40 px-3.5 py-2.5 flex items-center justify-between gap-2 text-xs"
               >
                 <div className="min-w-0">
-                  <p className="font-semibold truncate">{emp.full_name}</p>
-                  <p className="text-[11px] opacity-60 truncate">
+                  <p className="font-semibold text-slate-900 dark:text-white truncate">{emp.full_name}</p>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                     Admissão: {formatDateBR(emp.admission_date)} •{' '}
                     {nextOrCurrent
                       ? `Férias: ${formatDateBR(nextOrCurrent.start_date)} (${nextOrCurrent.days}d)`
@@ -310,7 +310,7 @@ export const VacationsControlTab: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => openScheduleModal(emp.id)}
-                  className="h-7 px-2.5 rounded-md text-[11px] font-medium bg-[#1A73E9]/10 text-[#1A73E9] hover:bg-[#1A73E9]/20 shrink-0"
+                  className="h-7 px-3 rounded-lg text-[11px] font-semibold bg-[#1A73E9]/10 text-[#1A73E9] hover:bg-[#1A73E9]/20 shrink-0 transition-colors"
                 >
                   Agendar
                 </button>
@@ -322,24 +322,24 @@ export const VacationsControlTab: React.FC = () => {
 
       {/* Modal: Programar / Editar Férias */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
-          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 p-5 shadow-2xl">
-            <div className="flex items-center justify-between mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="w-full max-w-md bg-white dark:bg-[#15263B] border border-slate-200 dark:border-slate-800 p-6 rounded-2xl shadow-2xl">
+            <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-slate-800 pb-3">
               <h3 className="text-sm font-bold text-slate-900 dark:text-white">
                 {editingVac ? 'Editar Férias' : 'Programar Férias'}
               </h3>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+                className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400"
               >
-                <X className="h-4 w-4 text-slate-500" />
+                <X className="h-4 w-4" />
               </button>
             </div>
 
             {overlappingVacations.length > 0 && (
-              <div className="mb-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 p-2.5 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
-                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="mb-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 p-3 rounded-xl text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-amber-600" />
                 <div>
                   <strong>Atenção:</strong> já existe(m){' '}
                   {overlappingVacations
@@ -350,7 +350,7 @@ export const VacationsControlTab: React.FC = () => {
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
+            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
                   Colaborador
@@ -358,7 +358,7 @@ export const VacationsControlTab: React.FC = () => {
                 <select
                   value={empId}
                   onChange={(e) => setEmpId(e.target.value)}
-                  className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                 >
                   {employees.map((e) => (
                     <option key={e.id} value={e.id}>
@@ -378,7 +378,7 @@ export const VacationsControlTab: React.FC = () => {
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full h-8 px-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                    className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -388,7 +388,7 @@ export const VacationsControlTab: React.FC = () => {
                   <select
                     value={daysCount}
                     onChange={(e) => setDaysCount(Number(e.target.value))}
-                    className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                    className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                   >
                     <option value={10}>10 dias</option>
                     <option value={14}>14 dias</option>
@@ -399,7 +399,7 @@ export const VacationsControlTab: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 flex items-center justify-between">
+              <div className="bg-slate-50 dark:bg-[#0E1B2B]/60 border border-slate-200/60 dark:border-slate-800/60 px-3.5 py-2 rounded-xl flex items-center justify-between">
                 <span className="text-slate-500">Término calculado das férias:</span>
                 <strong className="text-slate-900 dark:text-white tabular-nums font-mono">
                   {formatDateBR(computedEndDate)}
@@ -415,7 +415,7 @@ export const VacationsControlTab: React.FC = () => {
                     type="date"
                     value={acqStart}
                     onChange={(e) => setAcqStart(e.target.value)}
-                    className="w-full h-7 px-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px]"
+                    className="w-full h-8 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-[11px] text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -426,7 +426,7 @@ export const VacationsControlTab: React.FC = () => {
                     type="date"
                     value={acqEnd}
                     onChange={(e) => setAcqEnd(e.target.value)}
-                    className="w-full h-7 px-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px]"
+                    className="w-full h-8 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-[11px] text-slate-900 dark:text-white"
                   />
                 </div>
                 <div>
@@ -437,7 +437,7 @@ export const VacationsControlTab: React.FC = () => {
                     type="date"
                     value={concLimit}
                     onChange={(e) => setConcLimit(e.target.value)}
-                    className="w-full h-7 px-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px]"
+                    className="w-full h-8 px-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-[11px] text-slate-900 dark:text-white"
                   />
                 </div>
               </div>
@@ -449,7 +449,7 @@ export const VacationsControlTab: React.FC = () => {
                 <select
                   value={coverEmpId}
                   onChange={(e) => setCoverEmpId(e.target.value)}
-                  className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                 >
                   <option value="">Não atribuído</option>
                   {employees
@@ -471,21 +471,21 @@ export const VacationsControlTab: React.FC = () => {
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Observações administrativas..."
-                  className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+                  className="w-full h-9 px-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#0E1B2B] text-slate-900 dark:text-white"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
+              <div className="pt-3 flex justify-end gap-2 border-t border-slate-100 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="h-8 px-3 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
+                  className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-300 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 text-xs"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="h-8 px-4 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 font-bold"
+                  className="px-4 py-2 bg-[#0E1B2B] hover:bg-slate-800 text-white dark:bg-slate-100 dark:hover:bg-white dark:text-[#0E1B2B] font-bold text-xs rounded-xl shadow-xs transition-colors"
                 >
                   Salvar Férias
                 </button>
