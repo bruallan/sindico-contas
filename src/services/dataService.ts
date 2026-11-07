@@ -366,6 +366,18 @@ export async function signUpSyndic(params: {
   const normalizedEmail = params.email.trim().toLowerCase();
 
   if (isSupabaseConfigured && supabase) {
+    // 1. Verificação Estrita de Whitelist: O e-mail DEVE ter sido previamente cadastrado pelo Admin
+    const { data: preCheckClients, error: preCheckErr } = await supabase
+      .from('clients')
+      .select('*')
+      .ilike('syndic_email', normalizedEmail);
+
+    if (preCheckErr || !preCheckClients || preCheckClients.length === 0) {
+      throw new Error(
+        'Acesso negado: o e-mail informado não foi pré-autorizado pela administração. Solicite o cadastro do seu condomínio ao administrador.'
+      );
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email: normalizedEmail,
       password: params.password,
@@ -382,30 +394,25 @@ export async function signUpSyndic(params: {
       throw new Error(error?.message ?? 'Não foi possível concluir o cadastro.');
     }
 
+    // Vincula o user_id nos condomínios já cadastrados para este e-mail
+    await supabase
+      .from('clients')
+      .update({ user_id: data.user.id })
+      .ilike('syndic_email', normalizedEmail);
+
     const { data: clientsRows } = await supabase
       .from('clients')
       .select('*')
       .or(`user_id.eq.${data.user.id},syndic_email.ilike.${normalizedEmail}`);
 
-    let activeClients = (clientsRows ?? []) as Client[];
+    const allClients = (clientsRows ?? []) as Client[];
+    const today = getLocalTodayISO();
+    const activeClients = allClients.filter(
+      (c) => c.status === 'active' && !isClientScheduledExpired(c, today)
+    );
 
     if (activeClients.length === 0) {
-      const { data: inserted, error: insertErr } = await supabase
-        .from('clients')
-        .insert({
-          condo_name: params.condo_name.trim(),
-          syndic_name: params.syndic_name.trim(),
-          syndic_email: normalizedEmail,
-          user_id: data.user.id,
-          status: 'active',
-        })
-        .select('*')
-        .single();
-
-      if (insertErr) {
-        throw new Error(insertErr.message);
-      }
-      activeClients = [inserted as Client];
+      throw new Error('Acesso bloqueado: o condomínio vinculado a este e-mail encontra-se inativo.');
     }
 
     const resolved = activeClients[0];
@@ -426,47 +433,27 @@ export async function signUpSyndic(params: {
     throw new Error('Já existe um usuário cadastrado com este e-mail.');
   }
 
-  const newUserId = `u-syndic-${crypto.randomUUID().slice(0, 8)}`;
+  // Verificação Estrita de Whitelist Local:
   const existingPreClients = db.clients.filter(
-    (c) => c.syndic_email?.toLowerCase() === normalizedEmail && !c.user_id
+    (c) => c.syndic_email?.toLowerCase() === normalizedEmail
   );
 
-  if (existingPreClients.length === 0 && db.clients.length >= MAX_CLIENT_SLOTS) {
-    throw new Error('Limite máximo de 16 condomínios atingido na matriz administrativa.');
+  if (existingPreClients.length === 0) {
+    throw new Error(
+      'Acesso negado: o e-mail informado não foi pré-autorizado pela administração. Solicite o cadastro do seu condomínio ao administrador.'
+    );
   }
 
+  const newUserId = `u-syndic-${crypto.randomUUID().slice(0, 8)}`;
   let activeClients: Client[] = [];
-  let updatedClients = db.clients;
-  let updatedCategories = db.account_categories;
-
-  if (existingPreClients.length > 0) {
-    updatedClients = db.clients.map((c) => {
-      if (c.syndic_email?.toLowerCase() === normalizedEmail) {
-        const linked = { ...c, user_id: newUserId };
-        activeClients.push(linked);
-        return linked;
-      }
-      return c;
-    });
-  } else {
-    const newClientId = crypto.randomUUID();
-    const newClient: Client = {
-      id: newClientId,
-      condo_name: params.condo_name.trim(),
-      syndic_name: params.syndic_name.trim(),
-      syndic_email: normalizedEmail,
-      user_id: newUserId,
-      status: 'active',
-      scheduled_inactivation_date: null,
-      created_at: new Date().toISOString(),
-    };
-    activeClients = [newClient];
-    updatedClients = [...db.clients, newClient];
-    updatedCategories = [
-      ...db.account_categories,
-      ...createDefaultCategoriesForClient(newClientId),
-    ];
-  }
+  const updatedClients = db.clients.map((c) => {
+    if (c.syndic_email?.toLowerCase() === normalizedEmail) {
+      const linked = { ...c, user_id: newUserId };
+      activeClients.push(linked);
+      return linked;
+    }
+    return c;
+  });
 
   const nextDb: LocalDatabaseSchema = {
     ...db,
@@ -480,7 +467,6 @@ export async function signUpSyndic(params: {
       },
     ],
     clients: updatedClients,
-    account_categories: updatedCategories,
   };
 
   saveLocalDb(nextDb);
@@ -521,35 +507,84 @@ export async function requestPasswordReset(email: string): Promise<void> {
 export async function signInAdmin(email: string, password: string): Promise<AuthUserSession> {
   const normalizedEmail = email.trim().toLowerCase();
 
+  if (!isConfiguredAdminEmail(normalizedEmail)) {
+    throw new Error('Acesso restrito: este e-mail não possui privilégios de Administrador Master.');
+  }
+
   if (isSupabaseConfigured && supabase) {
+    // 1. Tenta login direto com as credenciais informadas
     const { data, error } = await supabase.auth.signInWithPassword({
       email: normalizedEmail,
       password,
     });
 
-    if (error || !data.user) {
-      throw new Error('Credenciais administrativas inválidas.');
+    if (!error && data.user) {
+      const isAdmin =
+        data.user.app_metadata?.role === 'admin' ||
+        data.user.user_metadata?.role === 'admin' ||
+        isConfiguredAdminEmail(data.user.email);
+
+      if (!isAdmin) {
+        await supabase.auth.signOut();
+        throw new Error('Acesso negado: esta conta não possui privilégios de Administrador Master.');
+      }
+
+      await supabase.rpc('enforce_scheduled_inactivations').then(() => undefined, () => undefined);
+
+      return {
+        id: data.user.id,
+        email: data.user.email ?? normalizedEmail,
+        role: 'admin',
+        client: null,
+        availableClients: [],
+      };
     }
 
-    const isAdmin =
-      data.user.app_metadata?.role === 'admin' ||
-      data.user.user_metadata?.role === 'admin' ||
-      isConfiguredAdminEmail(data.user.email);
-
-    if (!isAdmin) {
-      await supabase.auth.signOut();
-      throw new Error('Acesso negado: esta conta não possui privilégios de Administrador Master.');
+    // 2. Se o erro for de e-mail não confirmado
+    if (error?.message?.toLowerCase().includes('email not confirmed')) {
+      throw new Error(
+        'E-mail master pendente de confirmação. Acesse sua caixa de entrada em ' +
+          normalizedEmail +
+          ' para confirmar seu acesso (ou desative "Confirm email" no painel Supabase em Authentication > Providers > Email).'
+      );
     }
 
-    await supabase.rpc('enforce_scheduled_inactivations').then(() => undefined, () => undefined);
+    // 3. Se falhou por credenciais inválidas, pode ser o primeiro acesso do master (usuário ainda não criado no Supabase Auth)
+    if (error?.message?.toLowerCase().includes('invalid login credentials')) {
+      const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+        options: {
+          data: {
+            role: 'admin',
+          },
+        },
+      });
 
-    return {
-      id: data.user.id,
-      email: data.user.email ?? normalizedEmail,
-      role: 'admin',
-      client: null,
-      availableClients: [],
-    };
+      if (!signUpErr && signUpData.user) {
+        if (signUpData.session) {
+          return {
+            id: signUpData.user.id,
+            email: signUpData.user.email ?? normalizedEmail,
+            role: 'admin',
+            client: null,
+            availableClients: [],
+          };
+        }
+
+        throw new Error(
+          'Conta Master inicializada! Um e-mail de confirmação foi enviado para ' +
+            normalizedEmail +
+            '. Clique no link para confirmar e faça login com a senha definida (ou desative "Confirm email" em Authentication > Providers > Email no Supabase).'
+        );
+      }
+
+      if (signUpErr && signUpErr.message?.toLowerCase().includes('user already registered')) {
+        throw new Error('Senha administrativa incorreta para o e-mail ' + normalizedEmail + '.');
+      }
+    }
+
+    throw new Error(error?.message ?? 'Credenciais administrativas inválidas.');
   }
 
   // Modo Local Persistente

@@ -4,13 +4,12 @@ import { ArrowRight, AlertCircle, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggleButton } from '@/contexts/ThemeContext';
 import { CentriaxLogo } from '@/components/CentriaxLogo';
-import { isSupabaseConfigured } from '@/lib/supabase';
 
 export const AdminLoginPage: React.FC = () => {
   const { session, loginAdmin } = useAuth();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('brunoallan004@gmail.com');
   const [password, setPassword] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,12 +30,6 @@ export const AdminLoginPage: React.FC = () => {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const fillAdminBruno = () => {
-    setEmail('brunoallan004@gmail.com');
-    setPassword('admin123');
-    setError(null);
   };
 
   return (
@@ -97,25 +90,16 @@ export const AdminLoginPage: React.FC = () => {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full h-10 rounded-lg bg-[#1A73E9] hover:bg-[#1A73E9]/90 disabled:opacity-60 text-white text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors"
+              className="w-full h-10 rounded-lg bg-[#1A73E9] hover:bg-[#1A73E9]/90 disabled:opacity-60 text-white text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
             >
               <span>{submitting ? 'Autenticando Master...' : 'Acessar Painel Master'}</span>
               {!submitting && <ArrowRight className="h-4 w-4" />}
             </button>
           </form>
 
-          {!isSupabaseConfigured && (
-            <div className="mt-5 pt-3 border-t border-dashed border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 flex items-center justify-between text-[11px] opacity-75">
-              <span>Ambiente demonstrativo</span>
-              <button
-                type="button"
-                onClick={fillAdminBruno}
-                className="text-[#1A73E9] font-medium hover:underline"
-              >
-                Preencher admin (brunoallan004@gmail.com)
-              </button>
-            </div>
-          )}
+          <div className="mt-5 pt-3 border-t border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 text-[11px] leading-relaxed text-[#0E1B2B]/70 dark:text-[#E6EAED]/70">
+            <span className="font-semibold text-[#1A73E9]">Dica de Primeiro Acesso:</span> Digite a senha que deseja cadastrar para o administrador master e clique em <em>Acessar Painel Master</em>. Caso o Supabase exija confirmação de e-mail, verifique a caixa de entrada do seu Gmail ou desligue &quot;Confirm email&quot; no painel Supabase.
+          </div>
         </div>
       </main>
     </div>

@@ -87,7 +87,7 @@ export const ClientAppLayout: React.FC = () => {
           {!collapsed ? (
             <CentriaxLogo size="sm" />
           ) : (
-            <CentriaxLogo size="sm" showSubtitle={false} className="mx-auto" />
+            <CentriaxLogo size="sm" showSubtitle={false} collapsedIconOnly className="mx-auto" />
           )}
 
           <button
