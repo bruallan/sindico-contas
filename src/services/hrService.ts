@@ -5,15 +5,16 @@ import {
   CondoHrConfig,
   Employee,
   EmployeeDocument,
+  EmployeeScheduleConfig,
   EmployeeVacation,
+  ExplorerItem,
   PartyRoomBooking,
-  ScheduleOverride,
+  ScheduleOverrideCell,
   ScheduleValidationRecord,
-  ShiftCode,
 } from '@/types/hr';
 import { getLocalTodayISO } from '@/utils/formatters';
 
-const HR_STORAGE_PREFIX = 'sindico_contas_hr_v1_';
+const HR_STORAGE_PREFIX = 'sindico_contas_hr_v2_';
 
 function getStorageKey(clientId: string): string {
   return `${HR_STORAGE_PREFIX}${clientId}`;
@@ -36,7 +37,7 @@ function syncEmployeeStatusesWithVacations(bundle: CondoHrBundle): CondoHrBundle
   );
 
   const updatedEmployees: Employee[] = bundle.employees.map((emp) => {
-    if (emp.status === 'afastado') return emp;
+    if (emp.status === 'desligado' || emp.status === 'afastado') return emp;
     if (activeVacEmpIds.has(emp.id)) {
       return { ...emp, status: 'ferias' };
     }
@@ -55,12 +56,17 @@ export function loadCondoHrBundle(clientId: string, condoName?: string): CondoHr
     const raw = localStorage.getItem(getStorageKey(clientId));
     if (raw) {
       const parsed = JSON.parse(raw) as CondoHrBundle;
-      if (parsed && parsed.config && Array.isArray(parsed.employees)) {
+      if (
+        parsed &&
+        parsed.config &&
+        Array.isArray(parsed.employees) &&
+        Array.isArray(parsed.file_explorer_items)
+      ) {
         return syncEmployeeStatusesWithVacations(parsed);
       }
     }
   } catch {
-    // Recria pacote fictício caso armazenamento esteja corrompido
+    // Recria pacote caso inexistente ou desatualizado
   }
 
   const seeded = syncEmployeeStatusesWithVacations(
@@ -81,9 +87,6 @@ export function resetCondoHrBundleToDemo(clientId: string, condoName?: string): 
   return saveCondoHrBundle(clientId, seeded);
 }
 
-/**
- * Invalida (marca como 'modified_after_validation') a validação de um mês caso a escala daquele mês seja alterada.
- */
 function markScheduleDirtyForMonth(
   validations: ScheduleValidationRecord[],
   clientId: string,
@@ -151,37 +154,148 @@ export function upsertEmployee(
     ? current.employees.map((e) => (e.id === empId ? nextEmp : e))
     : [...current.employees, nextEmp];
 
-  // Se for novo colaborador, cria automaticamente o registro do ASO Admissional
-  const nextDocs = [...current.employee_documents];
-  if (!isEdit) {
-    nextDocs.push({
-      id: `${empId}-doc-adm`,
+  // Garante que exista pasta no Explorer para este colaborador
+  const nextExplorerItems = [...current.file_explorer_items];
+  const existingFolder = nextExplorerItems.find(
+    (item) => item.employee_id === empId && item.type === 'folder'
+  );
+
+  if (!existingFolder) {
+    nextExplorerItems.push({
+      id: `folder-emp-${empId}`,
       client_id: clientId,
+      parent_id: 'root-funcionarios',
+      name: `${nextEmp.full_name} (${nextEmp.registration_code})`,
+      type: 'folder',
+      updated_at: nextEmp.admission_date,
       employee_id: empId,
-      doc_type: 'aso_admissional',
-      title: 'ASO — Exame Médico Admissional',
-      issuer: 'Clínica Ocupacional Credenciada',
-      issue_date: nextEmp.admission_date,
-      expiry_date: null,
-      certificate_number: `ASO-${nextEmp.registration_code}`,
+      category: 'employee',
     });
   }
 
   return saveCondoHrBundle(clientId, {
     ...current,
     employees,
-    employee_documents: nextDocs,
+    file_explorer_items: nextExplorerItems,
   });
 }
 
-export function removeEmployee(clientId: string, employeeId: string): CondoHrBundle {
+export function updateEmployeeScheduleRule(
+  clientId: string,
+  employeeId: string,
+  rule: EmployeeScheduleConfig,
+  yearMonth = getLocalTodayISO().slice(0, 7)
+): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+  const employees = current.employees.map((e) =>
+    e.id === employeeId ? { ...e, schedule_rule: rule } : e
+  );
+
+  const nextValidations = markScheduleDirtyForMonth(
+    current.schedule_validations,
+    clientId,
+    yearMonth
+  );
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    employees,
+    schedule_validations: nextValidations,
+  });
+}
+
+export function setDoubleCellAssignment(params: {
+  clientId: string;
+  employeeId: string;
+  dateISO: string;
+  day: boolean;
+  night: boolean;
+  reason?: string;
+}): CondoHrBundle {
+  const { clientId, employeeId, dateISO, day, night, reason } = params;
+  const current = loadCondoHrBundle(clientId);
+
+  const filtered = current.schedule_overrides_v2.filter(
+    (o) => !(o.employee_id === employeeId && o.date_iso === dateISO)
+  );
+
+  const nextOverrides: ScheduleOverrideCell[] = [
+    ...filtered,
+    {
+      employee_id: employeeId,
+      date_iso: dateISO,
+      day,
+      night,
+      reason: reason?.trim() || undefined,
+    },
+  ];
+
+  const ym = dateISO.slice(0, 7);
+  const nextValidations = markScheduleDirtyForMonth(
+    current.schedule_validations,
+    clientId,
+    ym
+  );
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    schedule_overrides_v2: nextOverrides,
+    schedule_validations: nextValidations,
+  });
+}
+
+export function resetDoubleCellAssignment(params: {
+  clientId: string;
+  employeeId: string;
+  dateISO: string;
+}): CondoHrBundle {
+  const { clientId, employeeId, dateISO } = params;
+  const current = loadCondoHrBundle(clientId);
+
+  const filtered = current.schedule_overrides_v2.filter(
+    (o) => !(o.employee_id === employeeId && o.date_iso === dateISO)
+  );
+
+  const ym = dateISO.slice(0, 7);
+  const nextValidations = markScheduleDirtyForMonth(
+    current.schedule_validations,
+    clientId,
+    ym
+  );
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    schedule_overrides_v2: filtered,
+    schedule_validations: nextValidations,
+  });
+}
+
+export function clearMonthOverridesV2(clientId: string, yearMonth: string): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+  const filtered = current.schedule_overrides_v2.filter(
+    (o) => !o.date_iso.startsWith(yearMonth)
+  );
+  const nextValidations = markScheduleDirtyForMonth(
+    current.schedule_validations,
+    clientId,
+    yearMonth
+  );
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    schedule_overrides_v2: filtered,
+    schedule_validations: nextValidations,
+  });
+}
+
+export function deleteEmployee(clientId: string, employeeId: string): CondoHrBundle {
   const current = loadCondoHrBundle(clientId);
   return saveCondoHrBundle(clientId, {
     ...current,
     employees: current.employees.filter((e) => e.id !== employeeId),
     employee_documents: current.employee_documents.filter((d) => d.employee_id !== employeeId),
     vacations: current.vacations.filter((v) => v.employee_id !== employeeId),
-    schedule_overrides: current.schedule_overrides.filter((o) => o.employee_id !== employeeId),
+    schedule_overrides_v2: current.schedule_overrides_v2.filter((o) => o.employee_id !== employeeId),
   });
 }
 
@@ -203,17 +317,54 @@ export function upsertEmployeeDocument(
     ? current.employee_documents.map((d) => (d.id === docId ? record : d))
     : [...current.employee_documents, record];
 
+  // Adiciona também espelho do arquivo no Explorer
+  const emp = current.employees.find((e) => e.id === record.employee_id);
+  const parentFolder = current.file_explorer_items.find(
+    (it) => it.employee_id === record.employee_id && it.type === 'folder'
+  );
+  const parentId = parentFolder ? parentFolder.id : 'root-funcionarios';
+
+  const nextExplorer = [...current.file_explorer_items];
+  const fileExtId = `file-doc-${docId}`;
+  const existingFile = nextExplorer.find((f) => f.id === fileExtId);
+  const fileName = `${record.title.replace(/[\/\\]/g, '_')}.pdf`;
+
+  if (existingFile) {
+    nextExplorer.map((f) =>
+      f.id === fileExtId ? { ...f, name: fileName, expiry_date: record.expiry_date } : f
+    );
+  } else {
+    nextExplorer.push({
+      id: fileExtId,
+      client_id: clientId,
+      parent_id: parentId,
+      name: fileName,
+      type: 'file',
+      extension: 'pdf',
+      size_bytes: (record.file_size_kb || 250) * 1024,
+      updated_at: record.issue_date,
+      employee_id: record.employee_id,
+      category: 'employee',
+      content_description: `${record.title} • ${record.issuer} • ${emp?.full_name ?? ''}`,
+      expiry_date: record.expiry_date,
+    });
+  }
+
   return saveCondoHrBundle(clientId, {
     ...current,
     employee_documents,
+    file_explorer_items: nextExplorer,
   });
 }
 
-export function removeEmployeeDocument(clientId: string, docId: string): CondoHrBundle {
+export function deleteEmployeeDocument(clientId: string, docId: string): CondoHrBundle {
   const current = loadCondoHrBundle(clientId);
   return saveCondoHrBundle(clientId, {
     ...current,
     employee_documents: current.employee_documents.filter((d) => d.id !== docId),
+    file_explorer_items: current.file_explorer_items.filter(
+      (f) => f.id !== `file-doc-${docId}`
+    ),
   });
 }
 
@@ -235,12 +386,12 @@ export function upsertEmployeeVacation(
     ? current.vacations.map((v) => (v.id === vacId ? record : v))
     : [...current.vacations, record];
 
-  const startYM = record.start_date.slice(0, 7);
-  const endYM = record.end_date.slice(0, 7);
-  let nextValidations = markScheduleDirtyForMonth(current.schedule_validations, clientId, startYM);
-  if (endYM !== startYM) {
-    nextValidations = markScheduleDirtyForMonth(nextValidations, clientId, endYM);
-  }
+  const ym = record.start_date.slice(0, 7);
+  const nextValidations = markScheduleDirtyForMonth(
+    current.schedule_validations,
+    clientId,
+    ym
+  );
 
   return saveCondoHrBundle(clientId, {
     ...current,
@@ -249,100 +400,11 @@ export function upsertEmployeeVacation(
   });
 }
 
-export function removeEmployeeVacation(clientId: string, vacId: string): CondoHrBundle {
+export function deleteEmployeeVacation(clientId: string, vacId: string): CondoHrBundle {
   const current = loadCondoHrBundle(clientId);
-  const target = current.vacations.find((v) => v.id === vacId);
-  let nextValidations = current.schedule_validations;
-  if (target) {
-    nextValidations = markScheduleDirtyForMonth(
-      nextValidations,
-      clientId,
-      target.start_date.slice(0, 7)
-    );
-  }
   return saveCondoHrBundle(clientId, {
     ...current,
     vacations: current.vacations.filter((v) => v.id !== vacId),
-    schedule_validations: nextValidations,
-  });
-}
-
-export function setScheduleCellOverride(params: {
-  clientId: string;
-  employeeId: string;
-  dateISO: string;
-  shiftCode: ShiftCode | null; // null remove override e restaura automático
-  reason?: string;
-}): CondoHrBundle {
-  const { clientId, employeeId, dateISO, shiftCode, reason } = params;
-  const current = loadCondoHrBundle(clientId);
-  const filtered = current.schedule_overrides.filter(
-    (o) => !(o.employee_id === employeeId && o.date_iso === dateISO)
-  );
-
-  const nextOverrides =
-    shiftCode === null
-      ? filtered
-      : [
-          ...filtered,
-          {
-            id: `${clientId}-ov-${employeeId.slice(-6)}-${dateISO}`,
-            client_id: clientId,
-            employee_id: employeeId,
-            date_iso: dateISO,
-            shift_code: shiftCode,
-            reason: reason?.trim() || undefined,
-            updated_at: new Date().toISOString(),
-          },
-        ];
-
-  const ym = dateISO.slice(0, 7);
-  const nextValidations = markScheduleDirtyForMonth(current.schedule_validations, clientId, ym);
-
-  return saveCondoHrBundle(clientId, {
-    ...current,
-    schedule_overrides: nextOverrides,
-    schedule_validations: nextValidations,
-  });
-}
-
-export function applyBatchScheduleOverrides(
-  clientId: string,
-  yearMonth: string,
-  newOverrides: ScheduleOverride[]
-): CondoHrBundle {
-  const current = loadCondoHrBundle(clientId);
-  const incomingKeys = new Set(newOverrides.map((o) => `${o.employee_id}::${o.date_iso}`));
-  const kept = current.schedule_overrides.filter(
-    (o) => !incomingKeys.has(`${o.employee_id}::${o.date_iso}`)
-  );
-
-  const nextValidations = markScheduleDirtyForMonth(
-    current.schedule_validations,
-    clientId,
-    yearMonth
-  );
-
-  return saveCondoHrBundle(clientId, {
-    ...current,
-    schedule_overrides: [...kept, ...newOverrides],
-    schedule_validations: nextValidations,
-  });
-}
-
-export function clearMonthScheduleOverrides(clientId: string, yearMonth: string): CondoHrBundle {
-  const current = loadCondoHrBundle(clientId);
-  const nextValidations = markScheduleDirtyForMonth(
-    current.schedule_validations,
-    clientId,
-    yearMonth
-  );
-  return saveCondoHrBundle(clientId, {
-    ...current,
-    schedule_overrides: current.schedule_overrides.filter(
-      (o) => !o.date_iso.startsWith(yearMonth)
-    ),
-    schedule_validations: nextValidations,
   });
 }
 
@@ -357,8 +419,8 @@ export function validateMonthlySchedule(params: {
   const existing = current.schedule_validations.find((v) => v.year_month === yearMonth);
 
   const nowIso = new Date().toISOString();
-  const shortHash = Math.random().toString(36).substring(2, 6).toUpperCase();
   const ymClean = yearMonth.replace('-', '');
+  const shortHash = Math.random().toString(36).substring(2, 6).toUpperCase();
 
   const record: ScheduleValidationRecord = {
     client_id: clientId,
@@ -393,7 +455,6 @@ export function recordMonthlyScheduleExport(params: {
   const ymClean = yearMonth.replace('-', '');
   const shortHash = Math.random().toString(36).substring(2, 6).toUpperCase();
 
-  // Garante que toda exportação oficial possua Data de Validação + Data de Exportação válidas!
   const isAlreadyValid = existing?.status === 'validated' && Boolean(existing.validated_at);
 
   const record: ScheduleValidationRecord = {
@@ -446,7 +507,7 @@ export function upsertPartyBooking(
   });
 }
 
-export function removePartyBooking(clientId: string, bookingId: string): CondoHrBundle {
+export function deletePartyBooking(clientId: string, bookingId: string): CondoHrBundle {
   const current = loadCondoHrBundle(clientId);
   return saveCondoHrBundle(clientId, {
     ...current,
@@ -478,10 +539,136 @@ export function upsertCondoDocument(
   });
 }
 
-export function removeCondoDocument(clientId: string, docId: string): CondoHrBundle {
+export function deleteCondoDocument(clientId: string, docId: string): CondoHrBundle {
   const current = loadCondoHrBundle(clientId);
   return saveCondoHrBundle(clientId, {
     ...current,
     condo_documents: current.condo_documents.filter((d) => d.id !== docId),
+  });
+}
+
+// =============================================================================
+// Operações no Sistema de Arquivos / Ficheiro (Explorer / WinRAR Style)
+// =============================================================================
+
+export function createExplorerFolder(
+  clientId: string,
+  parentId: string | null,
+  folderName: string,
+  employeeId?: string | null
+): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+  const newFolder: ExplorerItem = {
+    id: `folder-${crypto.randomUUID().slice(0, 8)}`,
+    client_id: clientId,
+    parent_id: parentId,
+    name: folderName.trim() || 'Nova Pasta',
+    type: 'folder',
+    updated_at: new Date().toISOString(),
+    employee_id: employeeId || null,
+  };
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    file_explorer_items: [...current.file_explorer_items, newFolder],
+  });
+}
+
+export function createExplorerFile(
+  clientId: string,
+  parentId: string | null,
+  fileInput: {
+    name: string;
+    extension?: string;
+    size_bytes?: number;
+    content_description?: string;
+    expiry_date?: string | null;
+    employee_id?: string | null;
+  }
+): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+  const newFile: ExplorerItem = {
+    id: `file-${crypto.randomUUID().slice(0, 8)}`,
+    client_id: clientId,
+    parent_id: parentId,
+    name: fileInput.name.trim(),
+    type: 'file',
+    extension: fileInput.extension || 'pdf',
+    size_bytes: fileInput.size_bytes || 240000,
+    updated_at: new Date().toISOString(),
+    content_description: fileInput.content_description,
+    expiry_date: fileInput.expiry_date,
+    employee_id: fileInput.employee_id || null,
+  };
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    file_explorer_items: [...current.file_explorer_items, newFile],
+  });
+}
+
+export function renameExplorerItem(
+  clientId: string,
+  itemId: string,
+  newName: string
+): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+  const updated = current.file_explorer_items.map((it) =>
+    it.id === itemId
+      ? { ...it, name: newName.trim(), updated_at: new Date().toISOString() }
+      : it
+  );
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    file_explorer_items: updated,
+  });
+}
+
+export function deleteExplorerItem(clientId: string, itemId: string): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+
+  // Recursivamente localiza todos os filhos se for pasta
+  const idsToDelete = new Set<string>([itemId]);
+  let added = true;
+  while (added) {
+    added = false;
+    for (const item of current.file_explorer_items) {
+      if (item.parent_id && idsToDelete.has(item.parent_id) && !idsToDelete.has(item.id)) {
+        idsToDelete.add(item.id);
+        added = true;
+      }
+    }
+  }
+
+  const remaining = current.file_explorer_items.filter((it) => !idsToDelete.has(it.id));
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    file_explorer_items: remaining,
+  });
+}
+
+export function copyExplorerItem(
+  clientId: string,
+  itemId: string,
+  targetParentId: string | null
+): CondoHrBundle {
+  const current = loadCondoHrBundle(clientId);
+  const target = current.file_explorer_items.find((it) => it.id === itemId);
+  if (!target) return current;
+
+  const copied: ExplorerItem = {
+    ...target,
+    id: `${target.type}-${crypto.randomUUID().slice(0, 8)}`,
+    parent_id: targetParentId,
+    name: target.name.includes('.')
+      ? target.name.replace(/\.([^.]+)$/, '_copia.$1')
+      : `${target.name} (Cópia)`,
+    updated_at: new Date().toISOString(),
+  };
+
+  return saveCondoHrBundle(clientId, {
+    ...current,
+    file_explorer_items: [...current.file_explorer_items, copied],
   });
 }

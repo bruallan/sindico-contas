@@ -11,6 +11,7 @@ import {
   ChevronDown,
   Users,
   CalendarRange,
+  FolderOpen,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggleButton } from '@/contexts/ThemeContext';
@@ -82,6 +83,13 @@ export const ClientAppLayout: React.FC = () => {
       label: 'Gestão de Funcionários',
       icon: Users,
       badge: currentMonthGapsCount + expiredEmployeeDocsCount,
+    },
+    {
+      to: '/app/documentos',
+      end: false,
+      label: 'Documentos',
+      icon: FolderOpen,
+      badge: 0,
     },
     {
       to: '/app/calendario',

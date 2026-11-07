@@ -16,6 +16,7 @@ import { AccountabilityPage } from '@/pages/client/AccountabilityPage';
 import { TransactionsPage } from '@/pages/client/TransactionsPage';
 import { EmployeesManagementPage } from '@/pages/client/EmployeesManagementPage';
 import { CondoCalendarPage } from '@/pages/client/CondoCalendarPage';
+import { DocumentsPage } from '@/pages/client/DocumentsPage';
 
 const RootRedirect: React.FC = () => {
   const { session, loading } = useAuth();
@@ -66,6 +67,7 @@ export const App: React.FC = () => {
               <Route path="prestacao-contas" element={<AccountabilityPage />} />
               <Route path="lancamentos" element={<TransactionsPage />} />
               <Route path="funcionarios" element={<EmployeesManagementPage />} />
+              <Route path="documentos" element={<DocumentsPage />} />
               <Route path="calendario" element={<CondoCalendarPage />} />
             </Route>
 

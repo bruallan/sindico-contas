@@ -1,13 +1,18 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-  analyzeMonthlyCoverage24x7,
-  computeMonthlyScheduleMatrix,
+  computeDaysDoubleCoverage,
+  computeMonthlyDoubleMatrix,
   getDocumentExpiryInfo,
 } from '@/services/hrScheduleEngine';
 import {
   applyBatchScheduleOverrides,
+  clearMonthOverridesV2,
   clearMonthScheduleOverrides,
+  copyExplorerItem,
+  createExplorerFile,
+  createExplorerFolder,
+  deleteExplorerItem,
   loadCondoHrBundle,
   recordMonthlyScheduleExport,
   removeCondoDocument,
@@ -15,9 +20,13 @@ import {
   removeEmployeeDocument,
   removeEmployeeVacation,
   removePartyBooking,
+  renameExplorerItem,
   resetCondoHrBundleToDemo,
+  resetDoubleCellAssignment,
+  setDoubleCellAssignment,
   setScheduleCellOverride,
   updateCondoHrConfig,
+  updateEmployeeScheduleRule,
   upsertCondoDocument,
   upsertEmployee,
   upsertEmployeeDocument,
@@ -31,6 +40,7 @@ import {
   CondoHrConfig,
   Employee,
   EmployeeDocument,
+  EmployeeScheduleConfig,
   EmployeeVacation,
   PartyRoomBooking,
   ScheduleOverride,
@@ -63,6 +73,39 @@ interface HrDataContextValue {
   }) => void;
   applyBatchOverrides: (yearMonth: string, overrides: ScheduleOverride[]) => void;
   resetMonthOverrides: (yearMonth: string) => void;
+  updateScheduleRule: (
+    employeeId: string,
+    rule: EmployeeScheduleConfig,
+    yearMonth?: string
+  ) => void;
+  setCellDayNight: (params: {
+    employeeId: string;
+    dateISO: string;
+    day: boolean;
+    night: boolean;
+    reason?: string;
+  }) => void;
+  resetCellDayNight: (params: { employeeId: string; dateISO: string }) => void;
+  clearMonthOverridesV2: (yearMonth: string) => void;
+  createExplorerFolder: (
+    parentId: string | null,
+    folderName: string,
+    employeeId?: string | null
+  ) => void;
+  createExplorerFile: (
+    parentId: string | null,
+    fileInput: {
+      name: string;
+      extension?: string;
+      size_bytes?: number;
+      content_description?: string;
+      expiry_date?: string | null;
+      employee_id?: string | null;
+    }
+  ) => void;
+  renameExplorerItem: (itemId: string, newName: string) => void;
+  deleteExplorerItem: (itemId: string) => void;
+  copyExplorerItem: (itemId: string, targetParentId: string | null) => void;
   validateSchedule: (
     yearMonth: string,
     validatedBy: string,
@@ -124,20 +167,20 @@ export const HrDataProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     let soonEmp = 0;
 
     if (bundle.config.enabled) {
-      const matrix = computeMonthlyScheduleMatrix({
+      const doubleMatrix = computeMonthlyDoubleMatrix({
         yearMonth: currentYM,
         employees: bundle.employees,
         vacations: bundle.vacations,
-        overrides: bundle.schedule_overrides,
+        overrides: bundle.schedule_overrides_v2 || [],
       });
-      const coverage = analyzeMonthlyCoverage24x7({
+      const doubleCoverage = computeDaysDoubleCoverage({
         yearMonth: currentYM,
         employees: bundle.employees,
-        matrix,
-        minDayStaff: bundle.config.min_day_staff,
-        minNightStaff: bundle.config.min_night_staff,
+        matrix: doubleMatrix,
+        minDayStaff: bundle.config.min_day_staff ?? 1,
+        minNightStaff: bundle.config.min_night_staff ?? 1,
       });
-      gaps = coverage.allGaps.length;
+      gaps = doubleCoverage.filter((d) => d.total_under_staffed).length;
 
       for (const doc of bundle.employee_documents) {
         const exp = getDocumentExpiryInfo(doc.expiry_date, todayISO, 30);
@@ -251,6 +294,94 @@ export const HrDataProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     [clientId]
   );
 
+  const updateScheduleRule = useCallback(
+    (employeeId: string, rule: EmployeeScheduleConfig, yearMonth?: string) => {
+      if (!clientId) return;
+      setBundle(updateEmployeeScheduleRule(clientId, employeeId, rule, yearMonth));
+    },
+    [clientId]
+  );
+
+  const setCellDayNight = useCallback(
+    (params: {
+      employeeId: string;
+      dateISO: string;
+      day: boolean;
+      night: boolean;
+      reason?: string;
+    }) => {
+      if (!clientId) return;
+      setBundle(setDoubleCellAssignment({ clientId, ...params }));
+    },
+    [clientId]
+  );
+
+  const resetCellDayNight = useCallback(
+    (params: { employeeId: string; dateISO: string }) => {
+      if (!clientId) return;
+      setBundle(resetDoubleCellAssignment({ clientId, ...params }));
+    },
+    [clientId]
+  );
+
+  const clearMonthOverridesV2Callback = useCallback(
+    (yearMonth: string) => {
+      if (!clientId) return;
+      setBundle(clearMonthOverridesV2(clientId, yearMonth));
+    },
+    [clientId]
+  );
+
+  const createExplorerFolderCallback = useCallback(
+    (parentId: string | null, folderName: string, employeeId?: string | null) => {
+      if (!clientId) return;
+      setBundle(createExplorerFolder(clientId, parentId, folderName, employeeId));
+    },
+    [clientId]
+  );
+
+  const createExplorerFileCallback = useCallback(
+    (
+      parentId: string | null,
+      fileInput: {
+        name: string;
+        extension?: string;
+        size_bytes?: number;
+        content_description?: string;
+        expiry_date?: string | null;
+        employee_id?: string | null;
+      }
+    ) => {
+      if (!clientId) return;
+      setBundle(createExplorerFile(clientId, parentId, fileInput));
+    },
+    [clientId]
+  );
+
+  const renameExplorerItemCallback = useCallback(
+    (itemId: string, newName: string) => {
+      if (!clientId) return;
+      setBundle(renameExplorerItem(clientId, itemId, newName));
+    },
+    [clientId]
+  );
+
+  const deleteExplorerItemCallback = useCallback(
+    (itemId: string) => {
+      if (!clientId) return;
+      setBundle(deleteExplorerItem(clientId, itemId));
+    },
+    [clientId]
+  );
+
+  const copyExplorerItemCallback = useCallback(
+    (itemId: string, targetParentId: string | null) => {
+      if (!clientId) return;
+      setBundle(copyExplorerItem(clientId, itemId, targetParentId));
+    },
+    [clientId]
+  );
+
   const validateSchedule = useCallback(
     (yearMonth: string, validatedBy: string, notes?: string) => {
       if (!clientId) return null;
@@ -327,6 +458,15 @@ export const HrDataProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         overrideShiftCell,
         applyBatchOverrides,
         resetMonthOverrides,
+        updateScheduleRule,
+        setCellDayNight,
+        resetCellDayNight,
+        clearMonthOverridesV2: clearMonthOverridesV2Callback,
+        createExplorerFolder: createExplorerFolderCallback,
+        createExplorerFile: createExplorerFileCallback,
+        renameExplorerItem: renameExplorerItemCallback,
+        deleteExplorerItem: deleteExplorerItemCallback,
+        copyExplorerItem: copyExplorerItemCallback,
         validateSchedule,
         markScheduleExported,
         savePartyBooking,

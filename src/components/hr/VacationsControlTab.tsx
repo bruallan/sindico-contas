@@ -130,49 +130,44 @@ export const VacationsControlTab: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 font-sans">
       {/* KPIs de Férias */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3 shadow-sm">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
+            <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
               Em Gozo de Férias Hoje
             </span>
             <Palmtree className="h-4 w-4 text-amber-500" />
           </div>
-          <p className="text-xl font-bold tabular-nums mt-1 text-amber-500">
+          <p className="text-xl font-bold tabular-nums mt-1 text-slate-900 dark:text-white">
             {activeNowCount} Colaborador{activeNowCount !== 1 ? 'es' : ''}
           </p>
-          <p className="text-[11px] opacity-65 mt-0.5">
-            Refletido automaticamente como &ldquo;FE&rdquo; na escala 24/7
-          </p>
         </div>
 
-        <div className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-4">
-          <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
-            Férias Programadas
-          </span>
-          <p className="text-xl font-bold tabular-nums mt-1 text-[#1A73E9]">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3 shadow-sm">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
+              Férias Programadas
+            </span>
+            <Clock className="h-4 w-4 text-blue-500" />
+          </div>
+          <p className="text-xl font-bold tabular-nums mt-1 text-slate-900 dark:text-white">
             {scheduledCount} Período{scheduledCount !== 1 ? 's' : ''}
           </p>
-          <p className="text-[11px] opacity-65 mt-0.5">
-            Planejamento preventivo sem dobrar período concessivo
-          </p>
         </div>
 
-        <div className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-4 flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3 shadow-sm flex items-center justify-between">
           <div>
-            <span className="text-[11px] uppercase tracking-wider opacity-60 font-semibold">
-              Integração Automática Escala
+            <span className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold">
+              Agendamento
             </span>
-            <p className="text-xs opacity-75 mt-1">
-              Ao agendar férias, a escala mensal bloqueia os plantões do titular e sinaliza eventual desfalque.
-            </p>
+            <p className="text-xs text-slate-500 mt-0.5">Cadastrar novo período de férias</p>
           </div>
           <button
             type="button"
             onClick={() => openScheduleModal()}
-            className="mt-3 h-8 px-3 rounded-lg bg-[#1A73E9] hover:bg-[#1A73E9]/90 text-white text-xs font-semibold inline-flex items-center justify-center gap-1.5"
+            className="h-8 px-3 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 text-xs font-bold inline-flex items-center gap-1.5"
           >
             <Plus className="h-3.5 w-3.5" />
             <span>Programar Férias</span>
@@ -181,19 +176,16 @@ export const VacationsControlTab: React.FC = () => {
       </div>
 
       {/* Cronograma de Férias Registradas */}
-      <div className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 overflow-hidden">
-        <div className="px-4 py-3.5 border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold">Cronograma de Férias (Ativas, Programadas e Histórico)</h3>
-            <p className="text-[11px] opacity-60">
-              Acompanhamento de períodos aquisitivos, limite concessivo CLT e cobertura operacional
-            </p>
-          </div>
+      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 shadow-sm overflow-hidden">
+        <div className="px-3.5 py-2.5 border-b border-slate-300 dark:border-slate-700 flex items-center justify-between bg-slate-100 dark:bg-slate-800">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white">
+            Cronograma de Férias (Ativas, Programadas e Histórico)
+          </h3>
         </div>
 
-        <div className="divide-y divide-[#0E1B2B]/8 dark:divide-[#E6EAED]/8">
+        <div className="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
           {sortedVacations.length === 0 ? (
-            <div className="p-8 text-center text-xs opacity-60">
+            <div className="p-8 text-center text-slate-400">
               Nenhum período de férias cadastrado até o momento.
             </div>
           ) : (
@@ -205,39 +197,39 @@ export const VacationsControlTab: React.FC = () => {
               return (
                 <div
                   key={vac.id}
-                  className="p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4 hover:bg-[#0E1B2B]/[0.015] dark:hover:bg-[#E6EAED]/[0.015]"
+                  className="p-3 flex flex-col lg:flex-row lg:items-center justify-between gap-3 hover:bg-slate-50 dark:hover:bg-slate-850"
                 >
                   <div className="space-y-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-sm font-semibold">
+                      <span className="font-bold text-slate-900 dark:text-white">
                         {emp?.full_name ?? 'Colaborador'}
                       </span>
-                      <span className="text-xs opacity-60">({emp?.role})</span>
+                      <span className="text-slate-500">({emp?.role})</span>
 
                       {vac.status === 'em_andamento' ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-600 dark:text-amber-300 inline-flex items-center gap-1">
+                        <span className="px-1.5 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-300 inline-flex items-center gap-1">
                           <Palmtree className="h-3 w-3" />
                           Em Andamento
                         </span>
                       ) : vac.status === 'programada' ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#1A73E9]/15 text-[#1A73E9] inline-flex items-center gap-1">
+                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-blue-100 text-blue-700 dark:bg-blue-950/60 dark:text-blue-300 inline-flex items-center gap-1">
                           <Clock className="h-3 w-3" />
                           Programada
                         </span>
                       ) : (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#2AC38B]/15 text-[#16885E] dark:text-[#2AC38B] inline-flex items-center gap-1">
+                        <span className="px-1.5 py-0.5 text-[10px] font-semibold bg-slate-200 text-slate-700 dark:bg-slate-700 dark:text-slate-300 inline-flex items-center gap-1">
                           <CheckCircle2 className="h-3 w-3" />
                           Concluída
                         </span>
                       )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
-                      <span className="inline-flex items-center gap-1 font-medium text-[#1A73E9]">
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-600 dark:text-slate-400">
+                      <span className="inline-flex items-center gap-1 font-semibold text-slate-900 dark:text-white">
                         <CalendarDays className="h-3.5 w-3.5" />
                         Gozo: {formatDateBR(vac.start_date)} até {formatDateBR(vac.end_date)} ({vac.days} dias)
                       </span>
-                      <span className="text-[11px] opacity-65">
+                      <span className="text-[11px]">
                         Período Aquisitivo: {formatDateBR(vac.acquisitive_start)} a{' '}
                         {formatDateBR(vac.acquisitive_end)}
                       </span>
@@ -245,7 +237,7 @@ export const VacationsControlTab: React.FC = () => {
                         className={`text-[11px] ${
                           vac.status !== 'concluida' && concCheck.status !== 'valid'
                             ? 'text-amber-600 dark:text-amber-300 font-semibold'
-                            : 'opacity-65'
+                            : ''
                         }`}
                       >
                         Limite Concessivo: {formatDateBR(vac.concessive_limit)}
@@ -253,10 +245,10 @@ export const VacationsControlTab: React.FC = () => {
                     </div>
 
                     {(coverEmp || vac.notes) && (
-                      <p className="text-[11px] opacity-75">
+                      <p className="text-[11px] text-slate-500">
                         {coverEmp && (
-                          <strong className="text-[#2AC38B] mr-2">
-                            Cobertura sugerida: {coverEmp.full_name}
+                          <strong className="text-emerald-600 dark:text-emerald-400 mr-2 font-medium">
+                            Cobertura: {coverEmp.full_name}
                           </strong>
                         )}
                         {vac.notes}
@@ -268,7 +260,7 @@ export const VacationsControlTab: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => openEditModal(vac)}
-                      className="h-8 px-3 rounded-lg border border-[#0E1B2B]/12 dark:border-[#E6EAED]/15 hover:border-[#1A73E9] text-xs font-medium inline-flex items-center gap-1.5"
+                      className="h-7 px-2.5 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-xs font-medium inline-flex items-center gap-1"
                     >
                       <Pencil className="h-3 w-3" />
                       <span>Editar</span>
@@ -276,8 +268,8 @@ export const VacationsControlTab: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => deleteVacation(vac.id)}
-                      className="h-8 w-8 rounded-lg border border-[#0E1B2B]/12 dark:border-[#E6EAED]/15 hover:border-[#EF4444] hover:text-[#EF4444] inline-flex items-center justify-center"
-                      title="Cancelar / Excluir registro de férias"
+                      className="h-7 w-7 border border-slate-300 dark:border-slate-700 hover:bg-red-50 text-slate-500 hover:text-red-600 inline-flex items-center justify-center"
+                      title="Excluir registro de férias"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -289,12 +281,12 @@ export const VacationsControlTab: React.FC = () => {
         </div>
       </div>
 
-      {/* Visão Geral de Todos os 10 Colaboradores para Planejamento */}
-      <div className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-4">
-        <h3 className="text-sm font-semibold mb-3">
-          Painel Rápido de Planejamento — Todos os Colaboradores ({employees.length})
+      {/* Visão Geral dos Colaboradores para Planejamento */}
+      <div className="bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 p-3.5 shadow-sm">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white mb-3">
+          Painel de Planejamento de Férias • Colaboradores ({employees.length})
         </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
           {employees.map((emp) => {
             const empVacs = vacations.filter((v) => v.employee_id === emp.id);
             const nextOrCurrent = empVacs.find(
@@ -330,41 +322,43 @@ export const VacationsControlTab: React.FC = () => {
 
       {/* Modal: Programar / Editar Férias */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0E1B2B]/60 backdrop-blur-[2px]">
-          <div className="w-full max-w-md rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/15 p-6 shadow-xl">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-base font-semibold">
-                {editingVac ? 'Editar Período de Férias' : 'Programar Férias de Colaborador'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60">
+          <div className="w-full max-w-md bg-white dark:bg-slate-900 border border-slate-400 dark:border-slate-700 p-5 shadow-2xl">
+            <div className="flex items-center justify-between mb-3 border-b border-slate-200 dark:border-slate-800 pb-2">
+              <h3 className="text-sm font-bold text-slate-900 dark:text-white">
+                {editingVac ? 'Editar Férias' : 'Programar Férias'}
               </h3>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="h-8 w-8 rounded-lg inline-flex items-center justify-center hover:bg-[#0E1B2B]/5 dark:hover:bg-[#E6EAED]/10"
+                className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
               >
-                <X className="h-4 w-4" />
+                <X className="h-4 w-4 text-slate-500" />
               </button>
             </div>
 
             {overlappingVacations.length > 0 && (
-              <div className="mb-3.5 rounded-lg bg-amber-500/12 border border-amber-500/35 p-3 text-xs text-amber-700 dark:text-amber-300 flex items-start gap-2">
+              <div className="mb-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-800 p-2.5 text-xs text-amber-800 dark:text-amber-200 flex items-start gap-2">
                 <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
                 <div>
-                  <strong>Conflito de Datas Detectado:</strong> já existe(m){' '}
+                  <strong>Atenção:</strong> já existe(m){' '}
                   {overlappingVacations
                     .map((v) => empMap.get(v.employee_id)?.full_name ?? 'outro colaborador')
                     .join(', ')}{' '}
-                  em férias neste intervalo. Verifique a cobertura 24/7 na aba de Escalas!
+                  em férias neste intervalo.
                 </div>
               </div>
             )}
 
-            <form onSubmit={handleSubmit} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block font-medium mb-1 opacity-80">Colaborador *</label>
+                <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                  Colaborador
+                </label>
                 <select
                   value={empId}
                   onChange={(e) => setEmpId(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                  className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
                 >
                   {employees.map((e) => (
                     <option key={e.id} value={e.id}>
@@ -376,84 +370,88 @@ export const VacationsControlTab: React.FC = () => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-medium mb-1 opacity-80">Data de Início *</label>
+                  <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                    Data de Início
+                  </label>
                   <input
                     type="date"
                     required
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full h-9 px-2.5 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                    className="w-full h-8 px-2 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
                   />
                 </div>
                 <div>
-                  <label className="block font-medium mb-1 opacity-80">Duração (Dias CLT) *</label>
+                  <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                    Duração (Dias)
+                  </label>
                   <select
                     value={daysCount}
                     onChange={(e) => setDaysCount(Number(e.target.value))}
-                    className="w-full h-9 px-3 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                    className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
                   >
-                    <option value={10}>10 dias (Fracionado)</option>
-                    <option value={14}>14 dias (Mínimo 1º período CLT)</option>
-                    <option value={15}>15 dias (Quinzena)</option>
-                    <option value={20}>20 dias (+ 10 dias abono)</option>
-                    <option value={30}>30 dias (Integral)</option>
+                    <option value={10}>10 dias</option>
+                    <option value={14}>14 dias</option>
+                    <option value={15}>15 dias</option>
+                    <option value={20}>20 dias</option>
+                    <option value={30}>30 dias</option>
                   </select>
                 </div>
               </div>
 
-              <div className="rounded-lg bg-[#1A73E9]/8 border border-[#1A73E9]/20 px-3 py-2 flex items-center justify-between">
-                <span className="opacity-75">Término calculado das férias:</span>
-                <strong className="text-[#1A73E9] tabular-nums">
+              <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-3 py-1.5 flex items-center justify-between">
+                <span className="text-slate-500">Término calculado das férias:</span>
+                <strong className="text-slate-900 dark:text-white tabular-nums font-mono">
                   {formatDateBR(computedEndDate)}
                 </strong>
               </div>
 
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 opacity-75">
+                  <label className="block text-[11px] font-medium mb-1 text-slate-500">
                     Início Aquisitivo
                   </label>
                   <input
                     type="date"
                     value={acqStart}
                     onChange={(e) => setAcqStart(e.target.value)}
-                    className="w-full h-8 px-2 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15 text-[11px]"
+                    className="w-full h-7 px-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 opacity-75">
+                  <label className="block text-[11px] font-medium mb-1 text-slate-500">
                     Fim Aquisitivo
                   </label>
                   <input
                     type="date"
                     value={acqEnd}
                     onChange={(e) => setAcqEnd(e.target.value)}
-                    className="w-full h-8 px-2 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15 text-[11px]"
+                    className="w-full h-7 px-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px]"
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 opacity-75">
+                  <label className="block text-[11px] font-medium mb-1 text-slate-500">
                     Limite Concessivo
                   </label>
                   <input
                     type="date"
                     value={concLimit}
                     onChange={(e) => setConcLimit(e.target.value)}
-                    className="w-full h-8 px-2 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15 text-[11px]"
+                    className="w-full h-7 px-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-[11px]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-medium mb-1 opacity-80">
-                  Colaborador Substituto / Folguista Preferencial
+                <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                  Colaborador Substituto
                 </label>
                 <select
                   value={coverEmpId}
                   onChange={(e) => setCoverEmpId(e.target.value)}
-                  className="w-full h-9 px-3 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                  className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
                 >
-                  <option value="">Definir diretamente na Escala 24/7</option>
+                  <option value="">Não atribuído</option>
                   {employees
                     .filter((e) => e.id !== empId)
                     .map((e) => (
@@ -465,29 +463,31 @@ export const VacationsControlTab: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-medium mb-1 opacity-80">Observações</label>
+                <label className="block font-semibold mb-1 text-slate-700 dark:text-slate-300">
+                  Observações
+                </label>
                 <input
                   type="text"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ex: Abono pecuniário de 10 dias solicitado..."
-                  className="w-full h-9 px-3 rounded-lg bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                  placeholder="Observações administrativas..."
+                  className="w-full h-8 px-2.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
                 />
               </div>
 
-              <div className="pt-2 flex justify-end gap-2">
+              <div className="pt-2 flex justify-end gap-2 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="h-9 px-4 rounded-lg border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                  className="h-8 px-3 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="h-9 px-4 rounded-lg bg-[#1A73E9] text-white font-semibold"
+                  className="h-8 px-4 bg-slate-800 hover:bg-slate-900 text-white dark:bg-slate-200 dark:text-slate-900 font-bold"
                 >
-                  Salvar Férias e Atualizar Escala
+                  Salvar Férias
                 </button>
               </div>
             </form>
