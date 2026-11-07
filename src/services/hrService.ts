@@ -672,3 +672,39 @@ export function copyExplorerItem(
     file_explorer_items: [...current.file_explorer_items, copied],
   });
 }
+
+// Aliases de compatibilidade
+export const removeEmployee = deleteEmployee;
+export const removeEmployeeDocument = deleteEmployeeDocument;
+export const removeEmployeeVacation = deleteEmployeeVacation;
+export const removePartyBooking = deletePartyBooking;
+export const removeCondoDocument = deleteCondoDocument;
+export const clearMonthScheduleOverrides = clearMonthOverridesV2;
+
+export function applyBatchScheduleOverrides(
+  clientId: string,
+  yearMonth: string,
+  _overrides: ScheduleOverrideCell[]
+): CondoHrBundle {
+  return clearMonthOverridesV2(clientId, yearMonth);
+}
+
+export function setScheduleCellOverride(params: {
+  clientId: string;
+  employeeId: string;
+  dateISO: string;
+  shiftCode: string | null;
+  reason?: string;
+}): CondoHrBundle {
+  const isDay =
+    params.shiftCode === 'D' || params.shiftCode === 'C' || params.shiftCode === 'CD';
+  const isNight = params.shiftCode === 'N' || params.shiftCode === 'CN';
+  return setDoubleCellAssignment({
+    clientId: params.clientId,
+    employeeId: params.employeeId,
+    dateISO: params.dateISO,
+    day: isDay,
+    night: isNight,
+    reason: params.reason,
+  });
+}

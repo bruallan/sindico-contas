@@ -6,10 +6,7 @@ import {
   RotateCcw,
   Sliders,
   X,
-  CheckCircle2,
-  AlertTriangle,
   User,
-  Calendar,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHrData } from '@/contexts/HrDataContext';
@@ -23,7 +20,6 @@ import {
   DayShiftAssignment,
   Employee,
   EmployeeScheduleConfig,
-  ScheduleValidationRecord,
 } from '@/types/hr';
 import { getLocalTodayISO } from '@/utils/formatters';
 
@@ -191,11 +187,13 @@ export const ScheduleManagementTab: React.FC = () => {
 
     if (ruleType === 'weekly_fixed') {
       newRule = {
+        employeeId: ruleModalEmp.id,
         ruleType: 'weekly_fixed',
         weeklyFixed: { days: weeklyDays },
       };
     } else if (ruleType === 'sequence_cycle') {
       newRule = {
+        employeeId: ruleModalEmp.id,
         ruleType: 'sequence_cycle',
         sequenceCycle: {
           workDays: Number(seqWorkDays) || 1,
@@ -206,6 +204,7 @@ export const ScheduleManagementTab: React.FC = () => {
       };
     } else {
       newRule = {
+        employeeId: ruleModalEmp.id,
         ruleType: 'custom_days',
         customDays: { days: customDaysMap },
       };
@@ -261,6 +260,8 @@ export const ScheduleManagementTab: React.FC = () => {
           validated_by: validatorName,
           status: 'validada',
           validation_code: `ESC-${selectedYM.replace('-', '')}-${Math.floor(1000 + Math.random() * 9000)}`,
+          last_exported_at: new Date().toISOString(),
+          export_count: 1,
         },
       includeIndividualSlips: true,
     });

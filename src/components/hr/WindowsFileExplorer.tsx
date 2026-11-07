@@ -5,7 +5,6 @@ import {
   FileText,
   FileSpreadsheet,
   FileCheck,
-  FileAlert,
   Download,
   Trash2,
   Edit2,
@@ -19,8 +18,6 @@ import {
   X,
   Upload,
   Calendar,
-  CheckCircle,
-  AlertTriangle,
 } from 'lucide-react';
 import { useHrData } from '@/contexts/HrDataContext';
 import { ExplorerItem } from '@/types/hr';

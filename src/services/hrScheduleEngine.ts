@@ -33,6 +33,24 @@ export const EMPLOYEE_DOC_TYPE_LABELS: Record<EmployeeDocumentType, string> = {
   outro: 'Certificado / Documento',
 };
 
+export const SHIFT_META: Record<
+  string,
+  {
+    label: string;
+    printBgRgb: [number, number, number];
+    printTextRgb: [number, number, number];
+  }
+> = {
+  D: { label: 'Diurno', printBgRgb: [209, 250, 229], printTextRgb: [6, 95, 70] },
+  N: { label: 'Noturno', printBgRgb: [224, 231, 255], printTextRgb: [55, 48, 163] },
+  C: { label: 'Comercial', printBgRgb: [254, 243, 199], printTextRgb: [146, 64, 14] },
+  CD: { label: 'Cob. Dia', printBgRgb: [209, 250, 229], printTextRgb: [6, 95, 70] },
+  CN: { label: 'Cob. Noite', printBgRgb: [224, 231, 255], printTextRgb: [55, 48, 163] },
+  FG: { label: 'Folga', printBgRgb: [248, 250, 252], printTextRgb: [148, 163, 184] },
+  FE: { label: 'Férias', printBgRgb: [254, 215, 170], printTextRgb: [154, 52, 18] },
+  AT: { label: 'Atestado', printBgRgb: [254, 202, 202], printTextRgb: [153, 27, 27] },
+};
+
 export function getDaysInYearMonth(yearMonth: string): {
   dateISO: string;
   day: number;

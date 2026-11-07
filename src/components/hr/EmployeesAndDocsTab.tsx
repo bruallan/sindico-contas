@@ -3,24 +3,14 @@ import {
   FolderOpen,
   Plus,
   Search,
-  User,
-  Calendar,
   FileText,
-  AlertTriangle,
-  CheckCircle2,
   X,
-  Edit2,
   Trash2,
-  Upload,
-  Cake,
-  Phone,
-  HardDrive,
 } from 'lucide-react';
 import { useHrData } from '@/contexts/HrDataContext';
 import { WindowsFileExplorer } from '@/components/hr/WindowsFileExplorer';
 import {
   Employee,
-  EmployeeDocument,
   EmployeeDocumentType,
   EmployeeRoleCategory,
 } from '@/types/hr';
@@ -114,11 +104,11 @@ export const EmployeesAndDocsTab: React.FC = () => {
     setEmpRegCode(emp.registration_code);
     setEmpRole(emp.role);
     setEmpRoleCategory(emp.role_category);
-    setEmpCpf(emp.cpf);
+    setEmpCpf(emp.cpf || emp.cpf_masked || '');
     setEmpAdmission(emp.admission_date);
     setEmpBirth(emp.birth_date);
     setEmpPhone(emp.phone);
-    setEmpSalary(emp.salary_base || 2650);
+    setEmpSalary(emp.salary_base || emp.base_salary || 2650);
     setEmpEmergency(emp.emergency_contact || '');
     setIsEmpModalOpen(true);
   };
@@ -133,12 +123,14 @@ export const EmployeesAndDocsTab: React.FC = () => {
       registration_code: empRegCode.trim(),
       role: empRole.trim(),
       role_category: empRoleCategory,
+      cpf_masked: empCpf.trim() || '000.***.***-00',
       cpf: empCpf.trim(),
       admission_date: empAdmission,
       birth_date: empBirth,
       phone: empPhone.trim(),
       schedule_pattern: editingEmp?.schedule_pattern ?? '12x36_day_even',
       schedule_rule: editingEmp?.schedule_rule ?? {
+        employeeId: editingEmp?.id || 'new',
         ruleType: 'sequence_cycle',
         sequenceCycle: {
           workDays: 3,
@@ -147,8 +139,10 @@ export const EmployeesAndDocsTab: React.FC = () => {
           startDate: empAdmission,
         },
       },
+      work_hours_label: editingEmp?.work_hours_label ?? '12x36 • 06:00 às 18:00',
       work_hours_description: editingEmp?.work_hours_description ?? '12x36 • 06:00 às 18:00',
       status: editingEmp?.status ?? 'ativo',
+      base_salary: Number(empSalary) || 2650,
       salary_base: Number(empSalary) || 2650,
       emergency_contact: empEmergency.trim(),
     });
@@ -177,10 +171,10 @@ export const EmployeesAndDocsTab: React.FC = () => {
       employee_id: selectedEmployee.id,
       doc_type: docType,
       title: docTitle.trim(),
-      issuer: docIssuer.trim() || undefined,
+      issuer: docIssuer.trim() || 'Clínica Ocupacional',
       issue_date: docIssueDate,
       expiry_date: docExpiryDate || null,
-      status: 'valido',
+      certificate_number: `CERT-${Date.now().toString().slice(-6)}`,
     });
 
     setIsDocModalOpen(false);
@@ -321,7 +315,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
               <div>
                 <span className="text-slate-500 block text-[10px]">CPF:</span>
                 <span className="font-mono font-medium text-slate-900 dark:text-white">
-                  {selectedEmployee.cpf || 'Não informado'}
+                  {selectedEmployee.cpf || selectedEmployee.cpf_masked || 'Não informado'}
                 </span>
               </div>
               <div>
@@ -345,7 +339,7 @@ export const EmployeesAndDocsTab: React.FC = () => {
               <div>
                 <span className="text-slate-500 block text-[10px]">Salário Base:</span>
                 <span className="font-mono font-medium text-slate-900 dark:text-white">
-                  R$ {(selectedEmployee.salary_base || 2650).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  R$ {(selectedEmployee.salary_base || selectedEmployee.base_salary || 2650).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
               <div>
@@ -638,6 +632,17 @@ export const EmployeesAndDocsTab: React.FC = () => {
                 <option value="cnh">CNH</option>
                 <option value="outros">Outros</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-slate-600 dark:text-slate-400 mb-1">Emissor / Clínica</label>
+              <input
+                type="text"
+                value={docIssuer}
+                onChange={(e) => setDocIssuer(e.target.value)}
+                placeholder="Ex: Clínica Ocupacional Santa Maria"
+                className="w-full px-2.5 py-1.5 border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800"
+              />
             </div>
 
             <div>

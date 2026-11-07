@@ -31,11 +31,19 @@ export interface CustomDaysRule {
 }
 
 export interface EmployeeScheduleConfig {
-  employeeId: string;
+  employeeId?: string;
   ruleType: ScheduleRuleType;
   weeklyFixed?: WeeklyFixedRule;
   sequenceCycle?: SequenceCycleRule;
   customDays?: CustomDaysRule;
+}
+
+export type ShiftCode = 'D' | 'N' | 'C' | 'CD' | 'CN' | 'FG' | 'FE' | 'AT';
+
+export interface ComputedCellShift {
+  shift_code: ShiftCode;
+  reason?: string;
+  is_override?: boolean;
 }
 
 export interface DayShiftAssignment {
@@ -90,13 +98,17 @@ export interface Employee {
   role: string;
   role_category: EmployeeRoleCategory;
   cpf_masked: string;
+  cpf?: string;
   admission_date: string;
   dismissal_date?: string | null;
   birth_date: string;
   phone: string;
   schedule_rule: EmployeeScheduleConfig;
   work_hours_label: string;
+  work_hours_description?: string;
+  schedule_pattern?: string;
   base_salary: number;
+  salary_base?: number;
   status: EmployeeStatus;
   emergency_contact: string;
 }
@@ -138,10 +150,21 @@ export interface ScheduleOverrideCell {
   reason?: string;
 }
 
+export type ScheduleOverride = ScheduleOverrideCell;
+
+export interface DayCoverageSummary {
+  date_iso: string;
+  day_shift_staff: Employee[];
+  night_shift_staff: Employee[];
+  day_ok: boolean;
+  night_ok: boolean;
+  gaps: { shift: 'day' | 'night'; deficit: number }[];
+}
+
 export interface ScheduleValidationRecord {
   client_id: string;
   year_month: string;
-  status: 'draft' | 'validated' | 'modified_after_validation';
+  status: 'draft' | 'validated' | 'modified_after_validation' | 'validada';
   validated_at: string | null;
   validated_by: string | null;
   validation_code: string | null;
