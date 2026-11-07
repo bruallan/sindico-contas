@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  body {
+    @apply bg-[#E6EAED] text-[#0E1B2B] dark:bg-[#0E1B2B] dark:text-[#E6EAED] transition-colors duration-150;
+  }
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Scrollbars minimalistas compatíveis com Light/Dark */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(14, 27, 43, 0.2);
+  border-radius: 9999px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(230, 234, 237, 0.18);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 115, 233, 0.55);
+}

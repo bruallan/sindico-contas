@@ -1,0 +1,8 @@
+node_modules
+dist
+dist-ssr
+pnpm-lock.yaml
+*.local
+.env
+.env.*
+!.env.example
