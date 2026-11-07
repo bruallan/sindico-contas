@@ -663,6 +663,18 @@ export async function createNewClientSlot(input: CreateClientInput): Promise<Cli
   }
 
   if (isSupabaseConfigured && supabase) {
+    // 1. Tenta criar através da função RPC segura com SECURITY DEFINER (imune a restrições de RLS)
+    const { data: rpcData, error: rpcErr } = await supabase.rpc('admin_create_client_slot', {
+      p_condo_name: condoName,
+      p_syndic_name: syndicName,
+      p_syndic_email: syndicEmail,
+    });
+
+    if (!rpcErr && rpcData) {
+      return rpcData as Client;
+    }
+
+    // 2. Fallback caso a função RPC ainda não tenha sido aplicada no SQL Editor
     const { count } = await supabase.from('clients').select('*', { count: 'exact', head: true });
     if ((count ?? 0) >= MAX_CLIENT_SLOTS) {
       throw new Error('Todos os 16 slots do painel administrativo já estão ocupados.');
@@ -680,7 +692,14 @@ export async function createNewClientSlot(input: CreateClientInput): Promise<Cli
       .select('*')
       .single();
 
-    if (error) throw new Error(error.message);
+    if (error) {
+      if (error.message.includes('row-level security')) {
+        throw new Error(
+          'Permissão negada pelo Supabase. Execute o script de correção de RLS no SQL Editor do Supabase (migração 002).'
+        );
+      }
+      throw new Error(error.message);
+    }
     return data as Client;
   }
 
