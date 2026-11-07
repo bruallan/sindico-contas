@@ -138,6 +138,14 @@ export async function restoreAuthSession(): Promise<AuthUserSession | null> {
     }
 
     const normalizedEmail = (user.email ?? '').trim().toLowerCase();
+
+    // Garante que o user_id esteja vinculado nos registros do cliente com este e-mail
+    await supabase
+      .from('clients')
+      .update({ user_id: user.id })
+      .ilike('syndic_email', normalizedEmail)
+      .is('user_id', null);
+
     const { data: clientsData } = await supabase
       .from('clients')
       .select('*')
@@ -264,7 +272,14 @@ export async function signInSyndic(
       throw new Error('Credencial administrativa master. Acesse exclusivamente por /admin/login.');
     }
 
-    // 3. Busca todos os condomínios vinculados
+    // 3. Garante vinculação do user_id se ainda estiver nulo no Supabase
+    await supabase
+      .from('clients')
+      .update({ user_id: data.user.id })
+      .ilike('syndic_email', normalizedEmail)
+      .is('user_id', null);
+
+    // 4. Busca todos os condomínios vinculados
     const { data: clientsRows, error: clientsError } = await supabase
       .from('clients')
       .select('*')

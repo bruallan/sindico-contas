@@ -1,5 +1,4 @@
 import React from 'react';
-import { CENTRIAX_LOGO_BASE64, CENTRIAX_LOGO_DARK_BASE64 } from '@/logoCentriax';
 
 interface CentriaxLogoProps {
   className?: string;
@@ -14,7 +13,7 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   size = 'md',
   collapsedIconOnly = false,
 }) => {
-  const imgHeights = {
+  const svgHeights = {
     sm: 'h-6',
     md: 'h-7',
     lg: 'h-9',
@@ -36,18 +35,28 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
 
   return (
     <div className={`inline-flex items-center gap-3 select-none ${className}`}>
-      {/* Logo Centriax nativa otimizada: versão original no Light Mode e versão branca no Dark Mode */}
+      {/* Logo Centriax Vetorial Nativa em Alta Resolução (SVG) */}
       <div className="flex items-center shrink-0">
-        <img
-          src={CENTRIAX_LOGO_BASE64}
-          alt="Centriax"
-          className={`${imgHeights[size]} w-auto object-contain block dark:hidden`}
-        />
-        <img
-          src={CENTRIAX_LOGO_DARK_BASE64}
-          alt="Centriax"
-          className={`${imgHeights[size]} w-auto object-contain hidden dark:block`}
-        />
+        <svg
+          viewBox="0 0 135 30"
+          className={`${svgHeights[size]} w-auto block`}
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          role="img"
+          aria-label="Centriax"
+        >
+          <text
+            x="0"
+            y="23"
+            fontFamily="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+            fontSize="26"
+            fontWeight="700"
+            letterSpacing="-0.6px"
+          >
+            <tspan className="fill-[#3D3D42] dark:fill-[#F3F4F6]">centria</tspan>
+            <tspan className="fill-[#1A73E9] dark:fill-[#38BDF8]">x</tspan>
+          </text>
+        </svg>
       </div>
 
       {showSubtitle && (
