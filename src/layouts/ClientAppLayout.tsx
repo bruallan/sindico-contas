@@ -9,10 +9,13 @@ import {
   LogOut,
   Building2,
   ChevronDown,
+  Users,
+  CalendarRange,
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggleButton } from '@/contexts/ThemeContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
+import { useHrData } from '@/contexts/HrDataContext';
 import { CentriaxLogo } from '@/components/CentriaxLogo';
 
 const SIDEBAR_STORAGE_KEY = 'sindico_contas_sidebar_collapsed';
@@ -20,6 +23,7 @@ const SIDEBAR_STORAGE_KEY = 'sindico_contas_sidebar_collapsed';
 export const ClientAppLayout: React.FC = () => {
   const { session, selectCondominium, logout } = useAuth();
   const { transactions } = useFinancialData();
+  const { currentMonthGapsCount, expiredEmployeeDocsCount, urgentCondoDocsCount } = useHrData();
   const navigate = useNavigate();
 
   const [collapsed, setCollapsed] = useState<boolean>(() => {
@@ -71,6 +75,20 @@ export const ClientAppLayout: React.FC = () => {
       label: 'Lançamentos',
       icon: FilePlus2,
       badge: pendingCount,
+    },
+    {
+      to: '/app/funcionarios',
+      end: false,
+      label: 'Gestão de Funcionários',
+      icon: Users,
+      badge: currentMonthGapsCount + expiredEmployeeDocsCount,
+    },
+    {
+      to: '/app/calendario',
+      end: false,
+      label: 'Calendário Condominial',
+      icon: CalendarRange,
+      badge: urgentCondoDocsCount,
     },
   ];
 

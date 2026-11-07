@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { FinancialDataProvider } from '@/contexts/FinancialDataContext';
+import { HrDataProvider } from '@/contexts/HrDataContext';
 import { ProtectedRoute } from '@/components/ProtectedRoute';
 import { ClientLoginPage } from '@/pages/auth/ClientLoginPage';
 import { ClientRegisterPage } from '@/pages/auth/ClientRegisterPage';
@@ -13,6 +14,8 @@ import { ClientAppLayout } from '@/layouts/ClientAppLayout';
 import { WelcomePage } from '@/pages/client/WelcomePage';
 import { AccountabilityPage } from '@/pages/client/AccountabilityPage';
 import { TransactionsPage } from '@/pages/client/TransactionsPage';
+import { EmployeesManagementPage } from '@/pages/client/EmployeesManagementPage';
+import { CondoCalendarPage } from '@/pages/client/CondoCalendarPage';
 
 const RootRedirect: React.FC = () => {
   const { session, loading } = useAuth();
@@ -52,7 +55,9 @@ export const App: React.FC = () => {
               element={
                 <ProtectedRoute requiredRole="syndic">
                   <FinancialDataProvider>
-                    <ClientAppLayout />
+                    <HrDataProvider>
+                      <ClientAppLayout />
+                    </HrDataProvider>
                   </FinancialDataProvider>
                 </ProtectedRoute>
               }
@@ -60,6 +65,8 @@ export const App: React.FC = () => {
               <Route index element={<WelcomePage />} />
               <Route path="prestacao-contas" element={<AccountabilityPage />} />
               <Route path="lancamentos" element={<TransactionsPage />} />
+              <Route path="funcionarios" element={<EmployeesManagementPage />} />
+              <Route path="calendario" element={<CondoCalendarPage />} />
             </Route>
 
             {/* Fallback */}

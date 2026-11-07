@@ -48,3 +48,12 @@ Sistema SaaS para gestão financeira condominial e prestação de contas transpa
 npm install
 npm run dev
 ```
+
+---
+
+## 5. Módulo de Gestão de Funcionários (CNPJ Próprio) & Calendário Condominial
+- **Regime por Condomínio:** Cada condomínio pode habilitar ou desabilitar o sistema de RH próprio (contratação direta pelo CNPJ do condomínio) tanto no Painel Master (`/admin/dashboard`) quanto na aba **Gestão de Funcionários** (`/app/funcionarios`).
+- **Escalas Automáticas & Cobertura 24/7:** Geração automática contínua de escalas `12x36` (diurna e noturna) e comercial (`44h`), com edição manual célula-a-célula, sinalização automática de períodos com desfalque de pessoal e sugestão automática de cobertura.
+- **Validação Oficial e Exportação PDF:** Registro obrigatório de **Data de Validação** e **Data de Exportação** com código de autenticidade para impressão do Quadro Geral + Protocolo Individual de Entrega e Assinatura presencial dos colaboradores.
+- **Prontuário de Colaboradores e Férias:** Lista dos 10 colaboradores fictícios pré-cadastrados com controle de validade de exames admissionais/periódicos (ASO NR-07), certificados de Brigada de Incêndio (NR-23), NR-10, NR-35 e gestão de férias integrada à escala.
+- **Calendário do Condomínio (`/app/calendario`):** Centraliza aniversários dos 10 colaboradores, reservas do salão de festas, vencimento de documentos prediais/trabalhistas e contratos, com filtros por categoria/urgência e barra de pesquisa global.

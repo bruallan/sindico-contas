@@ -18,6 +18,7 @@ import {
   fetchAllClients,
   updateClientManagement,
 } from '@/services/dataService';
+import { loadCondoHrBundle, updateCondoHrConfig } from '@/services/hrService';
 import { Client, ClientStatus } from '@/types/database';
 import { formatDateBR, getLocalTodayISO } from '@/utils/formatters';
 
@@ -37,6 +38,8 @@ export const AdminDashboardPage: React.FC = () => {
   const [newSyndicName, setNewSyndicName] = useState('');
   const [newSyndicEmail, setNewSyndicEmail] = useState('');
   const [newInitialPassword, setNewInitialPassword] = useState('');
+  const [newHasDirectHr, setNewHasDirectHr] = useState(true);
+  const [newCondoCnpj, setNewCondoCnpj] = useState('18.492.310/0001-54');
   const [createError, setCreateError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
@@ -44,6 +47,8 @@ export const AdminDashboardPage: React.FC = () => {
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
   const [manageStatus, setManageStatus] = useState<ClientStatus>('active');
   const [scheduledDate, setScheduledDate] = useState<string>('');
+  const [manageDirectHr, setManageDirectHr] = useState<boolean>(true);
+  const [manageCondoCnpj, setManageCondoCnpj] = useState<string>('');
   const [manageError, setManageError] = useState<string | null>(null);
   const [savingManage, setSavingManage] = useState(false);
 
@@ -88,6 +93,8 @@ export const AdminDashboardPage: React.FC = () => {
     setNewSyndicName('');
     setNewSyndicEmail('');
     setNewInitialPassword('123456');
+    setNewHasDirectHr(true);
+    setNewCondoCnpj('18.492.310/0001-54');
     setCreateError(null);
     setIsCreateOpen(true);
   };
@@ -103,6 +110,10 @@ export const AdminDashboardPage: React.FC = () => {
         syndic_email: newSyndicEmail,
         initial_password: newInitialPassword || '123456',
       });
+      updateCondoHrConfig(created.id, created.condo_name, {
+        enabled: newHasDirectHr,
+        cnpj: newCondoCnpj.trim() || '18.492.310/0001-54',
+      });
       setClients((prev) => [...prev, created].slice(0, TOTAL_SLOTS));
       setIsCreateOpen(false);
     } catch (err) {
@@ -113,9 +124,12 @@ export const AdminDashboardPage: React.FC = () => {
   };
 
   const openManageModal = (client: Client) => {
+    const hrBundle = loadCondoHrBundle(client.id, client.condo_name);
     setSelectedClient(client);
     setManageStatus(client.status);
     setScheduledDate(client.scheduled_inactivation_date ?? '');
+    setManageDirectHr(hrBundle.config.enabled);
+    setManageCondoCnpj(hrBundle.config.cnpj);
     setManageError(null);
   };
 
@@ -128,6 +142,10 @@ export const AdminDashboardPage: React.FC = () => {
       const updated = await updateClientManagement(selectedClient.id, {
         status: manageStatus,
         scheduled_inactivation_date: scheduledDate ? scheduledDate : null,
+      });
+      updateCondoHrConfig(selectedClient.id, selectedClient.condo_name, {
+        enabled: manageDirectHr,
+        cnpj: manageCondoCnpj.trim() || '18.492.310/0001-54',
       });
       setClients((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
       setSelectedClient(null);
@@ -394,6 +412,27 @@ export const AdminDashboardPage: React.FC = () => {
                 />
               </div>
 
+              <div className="rounded-lg border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-3 space-y-2.5">
+                <label className="flex items-center justify-between cursor-pointer text-xs font-medium">
+                  <span>Funcionários Próprios Contratados pelo CNPJ</span>
+                  <input
+                    type="checkbox"
+                    checked={newHasDirectHr}
+                    onChange={(e) => setNewHasDirectHr(e.target.checked)}
+                    className="rounded text-[#1A73E9]"
+                  />
+                </label>
+                {newHasDirectHr && (
+                  <input
+                    type="text"
+                    value={newCondoCnpj}
+                    onChange={(e) => setNewCondoCnpj(e.target.value)}
+                    placeholder="CNPJ do Condomínio (ex: 18.492.310/0001-54)"
+                    className="w-full h-9 px-3 rounded-lg text-xs bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                  />
+                )}
+              </div>
+
               <div className="pt-2 flex items-center justify-end gap-2.5">
                 <button
                   type="button"
@@ -506,6 +545,31 @@ export const AdminDashboardPage: React.FC = () => {
                 <p className="text-[11px] opacity-55 mt-1.5">
                   O acesso a este condomínio será revogado automaticamente quando a data programada chegar.
                 </p>
+              </div>
+
+              {/* Sistema de Gestão de Funcionários (CNPJ do Condomínio) */}
+              <div className="rounded-lg border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-3.5 space-y-2.5">
+                <label className="flex items-center justify-between cursor-pointer text-xs font-semibold">
+                  <span>Gestão de Funcionários Próprios (CNPJ)</span>
+                  <input
+                    type="checkbox"
+                    checked={manageDirectHr}
+                    onChange={(e) => setManageDirectHr(e.target.checked)}
+                    className="rounded text-[#1A73E9]"
+                  />
+                </label>
+                <p className="text-[11px] opacity-60">
+                  Habilita escalas 24/7, controle de exames/certificados e férias para colaboradores contratados direto pelo CNPJ deste condomínio.
+                </p>
+                {manageDirectHr && (
+                  <input
+                    type="text"
+                    value={manageCondoCnpj}
+                    onChange={(e) => setManageCondoCnpj(e.target.value)}
+                    placeholder="CNPJ do Condomínio"
+                    className="w-full h-9 px-3 rounded-lg text-xs bg-[#E6EAED]/50 dark:bg-[#0E1B2B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15"
+                  />
+                )}
               </div>
 
               <div className="pt-1 flex items-center justify-end gap-2.5">
