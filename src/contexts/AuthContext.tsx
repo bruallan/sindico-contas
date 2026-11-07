@@ -6,12 +6,13 @@ import {
   signOutUser,
   signUpSyndic,
 } from '@/services/dataService';
-import { AuthUserSession } from '@/types/database';
+import { AuthUserSession, Client } from '@/types/database';
 
 interface AuthContextValue {
   session: AuthUserSession | null;
   loading: boolean;
-  loginSyndic: (email: string, password: string) => Promise<AuthUserSession>;
+  loginSyndic: (email: string, password: string, targetClientId?: string) => Promise<AuthUserSession>;
+  selectCondominium: (client: Client) => void;
   registerSyndic: (params: {
     condo_name: string;
     syndic_name: string;
@@ -44,10 +45,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     void refreshSession();
   }, [refreshSession]);
 
-  const loginSyndic = async (email: string, password: string) => {
-    const authSession = await signInSyndic(email, password);
+  const loginSyndic = async (email: string, password: string, targetClientId?: string) => {
+    const authSession = await signInSyndic(email, password, targetClientId);
     setSession(authSession);
     return authSession;
+  };
+
+  const selectCondominium = (selectedClient: Client) => {
+    localStorage.setItem('sindico_selected_client_id', selectedClient.id);
+    setSession((prev) => (prev ? { ...prev, client: selectedClient } : null));
   };
 
   const registerSyndic = async (params: {
@@ -78,6 +84,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         session,
         loading,
         loginSyndic,
+        selectCondominium,
         registerSyndic,
         loginAdmin,
         logout,

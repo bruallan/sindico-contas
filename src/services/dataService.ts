@@ -18,7 +18,25 @@ import { getLocalTodayISO, isClientScheduledExpired } from '@/utils/formatters';
 
 const LOCAL_DB_KEY = 'sindico_contas_db_v1';
 const LOCAL_SESSION_KEY = 'sindico_contas_session_v1';
+const SELECTED_CLIENT_STORAGE_KEY = 'sindico_selected_client_id';
 const MAX_CLIENT_SLOTS = 16;
+
+export const DEFAULT_ADMIN_EMAILS = [
+  'brunoallan004@gmail.com',
+  'admin@sindicocontas.com.br',
+];
+
+export function isConfiguredAdminEmail(email?: string | null): boolean {
+  if (!email) return false;
+  const normalized = email.trim().toLowerCase();
+  if (DEFAULT_ADMIN_EMAILS.includes(normalized)) return true;
+  const envEmail = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined)?.toLowerCase();
+  if (envEmail) {
+    const list = envEmail.split(',').map((e) => e.trim());
+    if (list.includes(normalized)) return true;
+  }
+  return false;
+}
 
 // =============================================================================
 // Utilitários Internos de Persistência Local (Fallback quando .env não configurado)
@@ -104,11 +122,10 @@ export async function restoreAuthSession(): Promise<AuthUserSession | null> {
     const user = data.session?.user;
     if (!user) return null;
 
-    const configuredAdminEmail = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined)?.toLowerCase();
     const isAdmin =
       user.app_metadata?.role === 'admin' ||
       user.user_metadata?.role === 'admin' ||
-      (configuredAdminEmail && user.email?.toLowerCase() === configuredAdminEmail);
+      isConfiguredAdminEmail(user.email);
 
     if (isAdmin) {
       return {
@@ -116,28 +133,43 @@ export async function restoreAuthSession(): Promise<AuthUserSession | null> {
         email: user.email ?? '',
         role: 'admin',
         client: null,
+        availableClients: [],
       };
     }
 
-    const { data: clientData } = await supabase
+    const normalizedEmail = (user.email ?? '').trim().toLowerCase();
+    const { data: clientsData } = await supabase
       .from('clients')
       .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle();
+      .or(`user_id.eq.${user.id},syndic_email.ilike.${normalizedEmail}`);
 
-    if (!clientData) return null;
+    const allClients = (clientsData ?? []) as Client[];
+    const today = getLocalTodayISO();
 
-    const client = clientData as Client;
-    if (client.status === 'inactive' || isClientScheduledExpired(client)) {
+    // Filtra apenas condomínios com status ativo e sem inativação vencida
+    const activeClients = allClients.filter(
+      (c) => c.status === 'active' && !isClientScheduledExpired(c, today)
+    );
+
+    if (activeClients.length === 0) {
       await supabase.auth.signOut();
+      localStorage.removeItem(SELECTED_CLIENT_STORAGE_KEY);
       return null;
     }
+
+    // Recupera o condomínio ativo previamente selecionado pelo usuário
+    const savedClientId = localStorage.getItem(SELECTED_CLIENT_STORAGE_KEY);
+    const resolvedClient =
+      activeClients.find((c) => c.id === savedClientId) ?? activeClients[0];
+
+    localStorage.setItem(SELECTED_CLIENT_STORAGE_KEY, resolvedClient.id);
 
     return {
       id: user.id,
       email: user.email ?? '',
       role: 'syndic',
-      client,
+      client: resolvedClient,
+      availableClients: activeClients,
     };
   }
 
@@ -150,99 +182,178 @@ export async function restoreAuthSession(): Promise<AuthUserSession | null> {
     const account = db.users.find((u) => u.id === userId);
     if (!account) return null;
 
-    if (account.role === 'admin') {
-      return { id: account.id, email: account.email, role: 'admin', client: null };
+    if (account.role === 'admin' || isConfiguredAdminEmail(account.email)) {
+      return {
+        id: account.id,
+        email: account.email,
+        role: 'admin',
+        client: null,
+        availableClients: [],
+      };
     }
 
-    const client = db.clients.find((c) => c.user_id === account.id) ?? null;
-    if (!client || client.status === 'inactive' || isClientScheduledExpired(client)) {
+    const today = getLocalTodayISO();
+    const normalizedEmail = account.email.trim().toLowerCase();
+    const allClients = db.clients.filter(
+      (c) => c.user_id === account.id || (c.syndic_email && c.syndic_email.toLowerCase() === normalizedEmail)
+    );
+
+    const activeClients = allClients.filter(
+      (c) => c.status === 'active' && !isClientScheduledExpired(c, today)
+    );
+
+    if (activeClients.length === 0) {
       localStorage.removeItem(LOCAL_SESSION_KEY);
+      localStorage.removeItem(SELECTED_CLIENT_STORAGE_KEY);
       return null;
     }
 
-    return { id: account.id, email: account.email, role: 'syndic', client };
+    const savedClientId = localStorage.getItem(SELECTED_CLIENT_STORAGE_KEY);
+    const resolvedClient =
+      activeClients.find((c) => c.id === savedClientId) ?? activeClients[0];
+
+    localStorage.setItem(SELECTED_CLIENT_STORAGE_KEY, resolvedClient.id);
+
+    return {
+      id: account.id,
+      email: account.email,
+      role: 'syndic',
+      client: resolvedClient,
+      availableClients: activeClients,
+    };
   } catch {
     return null;
   }
 }
 
-export async function signInSyndic(email: string, password: string): Promise<AuthUserSession> {
+export async function signInSyndic(
+  email: string,
+  password: string,
+  targetClientId?: string
+): Promise<AuthUserSession> {
   const normalizedEmail = email.trim().toLowerCase();
 
   if (isSupabaseConfigured && supabase) {
     await supabase.rpc('enforce_scheduled_inactivations').then(() => undefined, () => undefined);
 
+    // 1. Verificação Estrita de Lista de Autorização (Whitelist):
+    // Verifica se este e-mail foi previamente cadastrado pelo Admin em algum condomínio
+    const { data: preCheckClients, error: preCheckErr } = await supabase
+      .from('clients')
+      .select('*')
+      .ilike('syndic_email', normalizedEmail);
+
+    if (preCheckErr || !preCheckClients || preCheckClients.length === 0) {
+      throw new Error(
+        'Acesso não autorizado: este e-mail não foi cadastrado pela administração do sistema. Solicite o cadastro do seu condomínio à gestão.'
+      );
+    }
+
+    // 2. Autenticação das credenciais
     const { data, error } = await supabase.auth.signInWithPassword({
       email: normalizedEmail,
       password,
     });
 
     if (error || !data.user) {
-      throw new Error('E-mail ou senha inválidos.');
+      throw new Error('E-mail ou senha incorretos.');
     }
 
-    if (data.user.app_metadata?.role === 'admin' || data.user.user_metadata?.role === 'admin') {
+    if (data.user.app_metadata?.role === 'admin' || isConfiguredAdminEmail(data.user.email)) {
       await supabase.auth.signOut();
-      throw new Error('Utilize a rota /admin/login para credenciais administrativas.');
+      throw new Error('Credencial administrativa master. Acesse exclusivamente por /admin/login.');
     }
 
-    const { data: clientRow, error: clientError } = await supabase
+    // 3. Busca todos os condomínios vinculados
+    const { data: clientsRows, error: clientsError } = await supabase
       .from('clients')
       .select('*')
-      .eq('user_id', data.user.id)
-      .maybeSingle();
+      .or(`user_id.eq.${data.user.id},syndic_email.ilike.${normalizedEmail}`);
 
-    if (clientError || !clientRow) {
+    if (clientsError || !clientsRows || clientsRows.length === 0) {
       await supabase.auth.signOut();
       throw new Error('Nenhum condomínio vinculado a este usuário.');
     }
 
-    const client = clientRow as Client;
-    if (client.status === 'inactive' || isClientScheduledExpired(client)) {
-      if (client.status === 'active') {
-        await supabase.from('clients').update({ status: 'inactive' }).eq('id', client.id);
-      }
+    const allClients = clientsRows as Client[];
+    const today = getLocalTodayISO();
+    const activeClients = allClients.filter(
+      (c) => c.status === 'active' && !isClientScheduledExpired(c, today)
+    );
+
+    if (activeClients.length === 0) {
       await supabase.auth.signOut();
-      throw new Error('Acesso do condomínio encontra-se inativo. Contate a administração.');
+      throw new Error(
+        'Acesso inativo: o(s) condomínio(s) vinculado(s) a este e-mail encontram-se desativados pela administração.'
+      );
     }
+
+    const resolvedClient = targetClientId
+      ? activeClients.find((c) => c.id === targetClientId) ?? activeClients[0]
+      : activeClients[0];
+
+    localStorage.setItem(SELECTED_CLIENT_STORAGE_KEY, resolvedClient.id);
 
     return {
       id: data.user.id,
       email: data.user.email ?? normalizedEmail,
       role: 'syndic',
-      client,
+      client: resolvedClient,
+      availableClients: activeClients,
     };
   }
 
   // Modo Local Persistente
   const db = loadLocalDb();
+  const normalizedUserEmail = normalizedEmail;
+
+  // 1. Verificação Estrita de Lista de Autorização (Whitelist):
+  const userCondos = db.clients.filter(
+    (c) => c.syndic_email && c.syndic_email.toLowerCase() === normalizedUserEmail
+  );
+
+  if (userCondos.length === 0) {
+    throw new Error(
+      'Acesso não autorizado: este e-mail não foi cadastrado pela administração do sistema. Solicite o cadastro do seu condomínio à gestão.'
+    );
+  }
+
   const account = db.users.find(
     (u) => u.email.toLowerCase() === normalizedEmail && u.password === password
   );
 
   if (!account) {
-    throw new Error('E-mail ou senha inválidos.');
+    throw new Error('E-mail ou senha incorretos.');
   }
 
-  if (account.role === 'admin') {
-    throw new Error('Credencial administrativa. Acesse exclusivamente por /admin/login.');
+  if (account.role === 'admin' || isConfiguredAdminEmail(account.email)) {
+    throw new Error('Credencial administrativa master. Acesse exclusivamente por /admin/login.');
   }
 
-  const client = db.clients.find((c) => c.user_id === account.id);
-  if (!client) {
-    throw new Error('Nenhum condomínio vinculado a este síndico.');
+  const today = getLocalTodayISO();
+  const activeClients = userCondos.filter(
+    (c) => c.status === 'active' && !isClientScheduledExpired(c, today)
+  );
+
+  if (activeClients.length === 0) {
+    throw new Error(
+      'Acesso inativo: o(s) condomínio(s) vinculado(s) a este e-mail encontram-se desativados pela administração.'
+    );
   }
 
-  if (client.status === 'inactive' || isClientScheduledExpired(client)) {
-    throw new Error('O acesso deste condomínio encontra-se inativo. Contate o administrador.');
-  }
+  const resolvedClient = targetClientId
+    ? activeClients.find((c) => c.id === targetClientId) ?? activeClients[0]
+    : activeClients[0];
 
   localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify({ userId: account.id }));
+  localStorage.setItem(SELECTED_CLIENT_STORAGE_KEY, resolvedClient.id);
+
   return {
     id: account.id,
     email: account.email,
     role: 'syndic',
-    client,
+    client: resolvedClient,
+    availableClients: activeClients,
   };
 }
 
@@ -271,15 +382,14 @@ export async function signUpSyndic(params: {
       throw new Error(error?.message ?? 'Não foi possível concluir o cadastro.');
     }
 
-    const { data: clientRow } = await supabase
+    const { data: clientsRows } = await supabase
       .from('clients')
       .select('*')
-      .eq('user_id', data.user.id)
-      .maybeSingle();
+      .or(`user_id.eq.${data.user.id},syndic_email.ilike.${normalizedEmail}`);
 
-    let resolvedClient = clientRow as Client | null;
+    let activeClients = (clientsRows ?? []) as Client[];
 
-    if (!resolvedClient) {
+    if (activeClients.length === 0) {
       const { data: inserted, error: insertErr } = await supabase
         .from('clients')
         .insert({
@@ -295,14 +405,18 @@ export async function signUpSyndic(params: {
       if (insertErr) {
         throw new Error(insertErr.message);
       }
-      resolvedClient = inserted as Client;
+      activeClients = [inserted as Client];
     }
+
+    const resolved = activeClients[0];
+    localStorage.setItem(SELECTED_CLIENT_STORAGE_KEY, resolved.id);
 
     return {
       id: data.user.id,
       email: normalizedEmail,
       role: 'syndic',
-      client: resolvedClient,
+      client: resolved,
+      availableClients: activeClients,
     };
   }
 
@@ -313,31 +427,30 @@ export async function signUpSyndic(params: {
   }
 
   const newUserId = `u-syndic-${crypto.randomUUID().slice(0, 8)}`;
-
-  // Verifica se o Admin já pré-cadastrou um slot com este e-mail
-  const existingPreClient = db.clients.find(
+  const existingPreClients = db.clients.filter(
     (c) => c.syndic_email?.toLowerCase() === normalizedEmail && !c.user_id
   );
 
-  if (!existingPreClient && db.clients.length >= MAX_CLIENT_SLOTS) {
+  if (existingPreClients.length === 0 && db.clients.length >= MAX_CLIENT_SLOTS) {
     throw new Error('Limite máximo de 16 condomínios atingido na matriz administrativa.');
   }
 
-  let targetClient: Client;
-  let updatedCategories = db.account_categories;
+  let activeClients: Client[] = [];
   let updatedClients = db.clients;
+  let updatedCategories = db.account_categories;
 
-  if (existingPreClient) {
-    targetClient = {
-      ...existingPreClient,
-      user_id: newUserId,
-      condo_name: params.condo_name.trim() || existingPreClient.condo_name,
-      syndic_name: params.syndic_name.trim() || existingPreClient.syndic_name,
-    };
-    updatedClients = db.clients.map((c) => (c.id === targetClient.id ? targetClient : c));
+  if (existingPreClients.length > 0) {
+    updatedClients = db.clients.map((c) => {
+      if (c.syndic_email?.toLowerCase() === normalizedEmail) {
+        const linked = { ...c, user_id: newUserId };
+        activeClients.push(linked);
+        return linked;
+      }
+      return c;
+    });
   } else {
     const newClientId = crypto.randomUUID();
-    targetClient = {
+    const newClient: Client = {
       id: newClientId,
       condo_name: params.condo_name.trim(),
       syndic_name: params.syndic_name.trim(),
@@ -347,15 +460,12 @@ export async function signUpSyndic(params: {
       scheduled_inactivation_date: null,
       created_at: new Date().toISOString(),
     };
-    updatedClients = [...db.clients, targetClient];
+    activeClients = [newClient];
+    updatedClients = [...db.clients, newClient];
     updatedCategories = [
       ...db.account_categories,
       ...createDefaultCategoriesForClient(newClientId),
     ];
-  }
-
-  if (targetClient.status === 'inactive') {
-    throw new Error('Este condomínio encontra-se inativo pela administração.');
   }
 
   const nextDb: LocalDatabaseSchema = {
@@ -375,12 +485,14 @@ export async function signUpSyndic(params: {
 
   saveLocalDb(nextDb);
   localStorage.setItem(LOCAL_SESSION_KEY, JSON.stringify({ userId: newUserId }));
+  localStorage.setItem(SELECTED_CLIENT_STORAGE_KEY, activeClients[0].id);
 
   return {
     id: newUserId,
     email: normalizedEmail,
     role: 'syndic',
-    client: targetClient,
+    client: activeClients[0],
+    availableClients: activeClients,
   };
 }
 
@@ -419,11 +531,10 @@ export async function signInAdmin(email: string, password: string): Promise<Auth
       throw new Error('Credenciais administrativas inválidas.');
     }
 
-    const configuredAdminEmail = (import.meta.env.VITE_ADMIN_EMAIL as string | undefined)?.toLowerCase();
     const isAdmin =
       data.user.app_metadata?.role === 'admin' ||
       data.user.user_metadata?.role === 'admin' ||
-      (configuredAdminEmail && data.user.email?.toLowerCase() === configuredAdminEmail);
+      isConfiguredAdminEmail(data.user.email);
 
     if (!isAdmin) {
       await supabase.auth.signOut();
@@ -437,13 +548,17 @@ export async function signInAdmin(email: string, password: string): Promise<Auth
       email: data.user.email ?? normalizedEmail,
       role: 'admin',
       client: null,
+      availableClients: [],
     };
   }
 
   // Modo Local Persistente
   const db = loadLocalDb();
   const adminAccount = db.users.find(
-    (u) => u.email.toLowerCase() === normalizedEmail && u.password === password && u.role === 'admin'
+    (u) =>
+      u.email.toLowerCase() === normalizedEmail &&
+      u.password === password &&
+      (u.role === 'admin' || isConfiguredAdminEmail(u.email))
   );
 
   if (!adminAccount) {
@@ -456,6 +571,7 @@ export async function signInAdmin(email: string, password: string): Promise<Auth
     email: adminAccount.email,
     role: 'admin',
     client: null,
+    availableClients: [],
   };
 }
 
@@ -464,6 +580,7 @@ export async function signOutUser(): Promise<void> {
     await supabase.auth.signOut();
   }
   localStorage.removeItem(LOCAL_SESSION_KEY);
+  localStorage.removeItem(SELECTED_CLIENT_STORAGE_KEY);
 }
 
 // =============================================================================
@@ -485,7 +602,6 @@ export async function fetchAllClients(): Promise<Client[]> {
     const today = getLocalTodayISO();
     const clients = (data ?? []) as Client[];
 
-    // Garante sincronização caso haja agendamento vencido ainda não processado
     for (const c of clients) {
       if (c.status === 'active' && isClientScheduledExpired(c, today)) {
         c.status = 'inactive';
@@ -505,10 +621,10 @@ export async function fetchAllClients(): Promise<Client[]> {
 export async function createNewClientSlot(input: CreateClientInput): Promise<Client> {
   const condoName = input.condo_name.trim();
   const syndicName = input.syndic_name.trim();
-  const syndicEmail = input.syndic_email?.trim().toLowerCase() || null;
+  const syndicEmail = (input.syndic_email ?? '').trim().toLowerCase();
 
-  if (!condoName || !syndicName) {
-    throw new Error('Preencha o Nome do Condomínio e o Nome do Síndico.');
+  if (!condoName || !syndicName || !syndicEmail) {
+    throw new Error('Preencha o Nome do Condomínio, Nome do Síndico e E-mail do Síndico.');
   }
 
   if (isSupabaseConfigured && supabase) {
@@ -538,15 +654,16 @@ export async function createNewClientSlot(input: CreateClientInput): Promise<Cli
     throw new Error('Todos os 16 slots da matriz 4x4 já estão ocupados.');
   }
 
-  if (syndicEmail && db.users.some((u) => u.email.toLowerCase() === syndicEmail)) {
-    throw new Error('Este e-mail já está em uso por outro usuário.');
-  }
-
   const newClientId = crypto.randomUUID();
-  let linkedUserId: string | null = null;
   const nextUsers = [...db.users];
 
-  if (syndicEmail) {
+  // Se o síndico já tiver cadastro de usuário por ter outro condomínio, reaproveita o user_id existente!
+  const existingUser = db.users.find((u) => u.email.toLowerCase() === syndicEmail);
+  let linkedUserId: string;
+
+  if (existingUser) {
+    linkedUserId = existingUser.id;
+  } else {
     linkedUserId = `u-syndic-${crypto.randomUUID().slice(0, 8)}`;
     nextUsers.push({
       id: linkedUserId,
@@ -589,7 +706,6 @@ export async function updateClientManagement(
   let finalStatus = input.status;
   const schedDate = input.scheduled_inactivation_date || null;
 
-  // Se a data programada já chegou (<= hoje), inativa automaticamente
   if (schedDate && schedDate <= today) {
     finalStatus = 'inactive';
   }

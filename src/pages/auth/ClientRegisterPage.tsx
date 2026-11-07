@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Building2, ArrowLeft, AlertCircle } from 'lucide-react';
+import { ArrowLeft, AlertCircle } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggleButton } from '@/contexts/ThemeContext';
+import { CentriaxLogo } from '@/components/CentriaxLogo';
 
 export const ClientRegisterPage: React.FC = () => {
   const { registerSyndic } = useAuth();
@@ -40,18 +41,13 @@ export const ClientRegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-[#E6EAED] dark:bg-[#0E1B2B] text-[#0E1B2B] dark:text-[#E6EAED]">
-      <header className="w-full max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <div className="h-8 w-8 rounded-lg bg-[#1A73E9] flex items-center justify-center text-white">
-            <Building2 className="h-4 w-4" />
-          </div>
-          <span className="font-semibold tracking-tight text-sm">SíndicoContas</span>
-        </div>
+      <header className="w-full max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+        <CentriaxLogo size="md" />
         <ThemeToggleButton />
       </header>
 
       <main className="flex-1 flex items-center justify-center px-4 pb-12">
-        <div className="w-full max-w-sm rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-7 shadow-sm">
+        <div className="w-full max-w-md rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-7 shadow-sm">
           <Link
             to="/login"
             className="inline-flex items-center gap-1.5 text-xs text-[#1A73E9] hover:underline mb-4"
@@ -62,7 +58,7 @@ export const ClientRegisterPage: React.FC = () => {
 
           <h1 className="text-lg font-semibold tracking-tight mb-1">Cadastro de Síndico</h1>
           <p className="text-xs text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 mb-5">
-            Estruture imediatamente o plano de contas do condomínio
+            SGS — Sistema de Gestão Sindical e Prestação de Contas
           </p>
 
           {error && (

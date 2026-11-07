@@ -16,7 +16,8 @@ set search_path = public
 as $$
   select coalesce(
     (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin'
-    or (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin',
+    or (auth.jwt() -> 'user_metadata' ->> 'role') = 'admin'
+    or lower(auth.jwt() ->> 'email') in ('brunoallan004@gmail.com', 'admin@sindicocontas.com.br'),
     false
   );
 $$;
@@ -28,12 +29,17 @@ create table if not exists public.clients (
   id uuid primary key default gen_random_uuid(),
   condo_name text not null,
   syndic_name text not null,
-  syndic_email text unique,
+  syndic_email text not null,
   user_id uuid references auth.users(id) on delete set null,
   status text not null default 'active' check (status in ('active', 'inactive')),
   scheduled_inactivation_date date,
   created_at timestamptz not null default now()
 );
+
+-- Remove restrição de unicidade em syndic_email caso já exista (permite que um síndico gerencie múltiplos condomínios)
+alter table public.clients drop constraint if exists clients_syndic_email_key;
+
+create index if not exists idx_clients_syndic_email on public.clients(lower(syndic_email));
 
 create index if not exists idx_clients_user_id on public.clients(user_id);
 create index if not exists idx_clients_status on public.clients(status);
@@ -108,7 +114,7 @@ as $$
     select 1
     from public.clients c
     where c.id = target_client_id
-      and c.user_id = auth.uid()
+      and (c.user_id = auth.uid() or lower(c.syndic_email) = lower(auth.jwt() ->> 'email'))
       and c.status = 'active'
       and (c.scheduled_inactivation_date is null or c.scheduled_inactivation_date > current_date)
   );

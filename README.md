@@ -1,10 +1,11 @@
-# SíndicoContas — SaaS de Gestão Financeira e Prestação de Contas
+# SGS — Sistema de Gestão Sindical (Centriax)
 
 Sistema SaaS para gestão financeira condominial e prestação de contas transparente para síndicos, construído com **React + Vite, TypeScript, Tailwind CSS, Lucide Icons, Recharts e Supabase**.
 
 ---
 
-## 1. Identidade Visual & Temas
+## 1. Identidade Visual & Design System
+- **Logo Oficial:** Centriax
 - **Dark Navy:** `#0E1B2B` (Fundo Modo Escuro) / `#15263B` (Superfícies/Cards Escuros)
 - **Light Ice:** `#E6EAED` (Fundo Modo Claro) / `#FFFFFF` (Superfícies/Cards Claros)
 - **Primary Blue:** `#1A73E9` (Ações primárias, destaques e linha de saldo)
@@ -13,26 +14,36 @@ Sistema SaaS para gestão financeira condominial e prestação de contas transpa
 
 ---
 
-## 2. Configuração do Supabase
-1. Crie um projeto no [Supabase](https://supabase.com/).
-2. No **SQL Editor** do Supabase, execute integralmente o script:
-   - [`supabase/migrations/001_initial_schema.sql`](./supabase/migrations/001_initial_schema.sql)
-   - Ele cria as tabelas `clients`, `account_categories` e `transactions`, políticas **RLS**, bucket Storage `receipts`, gatilho de semeadura automática do Plano de Contas hierárquico e a função `enforce_scheduled_inactivations()`.
-3. Copie `.env.example` para `.env` e informe suas chaves:
-   ```env
-   VITE_SUPABASE_URL=https://seu-projeto.supabase.co
-   VITE_SUPABASE_ANON_KEY=sua-anon-key
-   VITE_ADMIN_EMAIL=admin@seudominio.com.br
-   ```
-4. Para definir um usuário como Administrador Master no Supabase Auth, atribua `{"role": "admin"}` em `raw_app_meta_data` (ou configure `VITE_ADMIN_EMAIL`).
-
-> **Modo Demonstrativo Automático:** Caso `.env` ainda não esteja configurado, o sistema opera automaticamente com persistência local (`localStorage`), permitindo testar todos os fluxos imediatamente:
-> - **Login Síndico (`/login`):** `sindico@jardins.com.br` / `123456`
-> - **Login Administrador (`/admin/login`):** `admin@sindicocontas.com.br` / `admin123`
+## 2. Autenticação, Controle de Acesso e Multi-Condomínio
+- **Administrador Master (`/admin/login`):**
+  - E-mails autorizados por padrão: `brunoallan004@gmail.com` e `admin@sindicocontas.com.br` (ou qualquer lista separada por vírgula em `VITE_ADMIN_EMAIL`).
+  - O Admin tem controle exclusivo sobre os 16 slots da matriz 4x4, cadastra novos condomínios com seus respectivos e-mails autorizados e pode ativar/desativar ou agendar a inativação de qualquer condomínio.
+- **Lista de Autorização Estrita (Whitelist Fechada para Síndicos):**
+  - O síndico só consegue acessar o sistema se o seu e-mail tiver sido previamente cadastrado pelo Administrador ao criar um condomínio.
+  - Tentativas com e-mails não cadastrados são bloqueadas com erro de acesso não autorizado.
+  - Se o condomínio for inativado pelo Admin, o acesso do síndico àquele condomínio é revogado imediatamente.
+- **Suporte a Múltiplos Condomínios por Síndico:**
+  - O mesmo e-mail de síndico pode gerenciar 2 ou mais condomínios.
+  - Ao fazer login no `/login`, se o síndico possuir mais de um condomínio ativo, o sistema exibe uma tela com menu suspenso para escolher qual condomínio deseja acessar.
+  - Dentro do painel (`/app`), o cabeçalho superior inclui um seletor para alternar entre seus condomínios a qualquer momento sem precisar deslogar.
 
 ---
 
-## 3. Execução Local
+## 3. Configuração do Supabase
+1. No seu projeto do Supabase, acesse o **SQL Editor** -> **New query**.
+2. Cole e execute o arquivo [`supabase/migrations/001_initial_schema.sql`](./supabase/migrations/001_initial_schema.sql).
+   *(Se você já tinha executado a versão anterior, ele remove automaticamente a restrição de unicidade do e-mail do síndico para permitir múltiplos condomínios).*
+3. Configure as variáveis de ambiente na Vercel (ou em `.env`):
+   ```env
+   VITE_SUPABASE_URL=https://chsdqrhrtwehxhooqmlp.supabase.co
+   VITE_SUPABASE_ANON_KEY=sb_publishable_RUDF0ltMCGpW1ByuTdlD1Q_iwta5DHB
+   VITE_ADMIN_EMAIL=brunoallan004@gmail.com
+   ```
+   *(O projeto aceita tanto prefixos `VITE_` quanto `NEXT_PUBLIC_`)*.
+
+---
+
+## 4. Execução Local
 ```bash
 npm install
 npm run dev

@@ -110,6 +110,7 @@ export function buildInitialSeedDatabase(): LocalDatabaseSchema {
   const client2Id = 'c1000000-0000-4000-8000-000000000002';
   const client3Id = 'c1000000-0000-4000-8000-000000000003';
   const client4Id = 'c1000000-0000-4000-8000-000000000004';
+  const client5Id = 'c1000000-0000-4000-8000-000000000005';
 
   const futureInactMonth = getRelativeYearMonth(2);
 
@@ -117,6 +118,12 @@ export function buildInitialSeedDatabase(): LocalDatabaseSchema {
     {
       id: 'u-admin-master',
       email: 'admin@sindicocontas.com.br',
+      password: 'admin123',
+      role: 'admin',
+    },
+    {
+      id: 'u-admin-bruno',
+      email: 'brunoallan004@gmail.com',
       password: 'admin123',
       role: 'admin',
     },
@@ -158,6 +165,16 @@ export function buildInitialSeedDatabase(): LocalDatabaseSchema {
       created_at: '2026-01-10T10:00:00Z',
     },
     {
+      id: client5Id,
+      condo_name: 'Residencial Jardins das Palmeiras',
+      syndic_name: 'Carlos Eduardo Mendes',
+      syndic_email: 'sindico@jardins.com.br',
+      user_id: 'u-syndic-1',
+      status: 'active',
+      scheduled_inactivation_date: null,
+      created_at: '2026-01-15T11:00:00Z',
+    },
+    {
       id: client2Id,
       condo_name: 'Residencial Aurora Boreal',
       syndic_name: 'Marina Costa Alencar',
@@ -170,7 +187,7 @@ export function buildInitialSeedDatabase(): LocalDatabaseSchema {
     {
       id: client3Id,
       condo_name: 'Condomínio Solar Imperial',
-      syndic_name: ' Roberto Almeida Neto'.trim(),
+      syndic_name: 'Roberto Almeida Neto',
       syndic_email: 'roberto@solarimperial.com.br',
       user_id: 'u-syndic-3',
       status: 'active',
@@ -191,6 +208,7 @@ export function buildInitialSeedDatabase(): LocalDatabaseSchema {
 
   const account_categories: AccountCategory[] = [
     ...createDefaultCategoriesForClient(client1Id),
+    ...createDefaultCategoriesForClient(client5Id),
     ...createDefaultCategoriesForClient(client2Id),
     ...createDefaultCategoriesForClient(client3Id),
     ...createDefaultCategoriesForClient(client4Id),

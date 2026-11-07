@@ -68,6 +68,7 @@ export interface AuthUserSession {
   email: string;
   role: UserRole;
   client: Client | null;
+  availableClients: Client[];
 }
 
 export interface CreateClientInput {
