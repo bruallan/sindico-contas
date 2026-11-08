@@ -18,6 +18,7 @@ import { ThemeToggleButton } from '@/contexts/ThemeContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useHrData } from '@/contexts/HrDataContext';
 import { CentriaxLogo } from '@/components/CentriaxLogo';
+import { getCondoLogo } from '@/logoCondominio';
 
 const SIDEBAR_STORAGE_KEY = 'sindico_contas_sidebar_collapsed';
 
@@ -218,9 +219,22 @@ export const ClientAppLayout: React.FC = () => {
               </button>
             )}
 
-            <div className="h-8 w-8 rounded-lg bg-[#1A73E9]/10 text-[#1A73E9] flex items-center justify-center shrink-0">
-              <Building2 className="h-4 w-4" />
-            </div>
+            {(() => {
+              const condoLogo = getCondoLogo(session?.client?.condo_name);
+              return condoLogo ? (
+                <div className="h-10 w-10 rounded-lg overflow-hidden bg-white dark:bg-[#0E1B2B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/15 shadow-xs flex items-center justify-center shrink-0 p-1">
+                  <img
+                    src={condoLogo}
+                    alt={session?.client?.condo_name || 'Logo do Condomínio'}
+                    className="h-full w-full object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="h-8 w-8 rounded-lg bg-[#1A73E9]/10 text-[#1A73E9] flex items-center justify-center shrink-0">
+                  <Building2 className="h-4 w-4" />
+                </div>
+              );
+            })()}
 
             {hasMultipleCondos ? (
               /* Seletor Rápido de Condomínio no Cabeçalho */
