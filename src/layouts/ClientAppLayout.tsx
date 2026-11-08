@@ -254,10 +254,10 @@ export const ClientAppLayout: React.FC = () => {
               </div>
             ) : (
               <div className="min-w-0">
-                <p className="text-sm font-semibold truncate leading-tight">
+                <p className="text-sm font-semibold whitespace-nowrap leading-tight">
                   {session?.client?.condo_name ?? 'Condomínio'}
                 </p>
-                <p className="text-[11px] text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 truncate mt-0.5">
+                <p className="text-[11px] text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 whitespace-nowrap mt-0.5">
                   Síndico(a): {session?.client?.syndic_name ?? '—'}
                 </p>
               </div>

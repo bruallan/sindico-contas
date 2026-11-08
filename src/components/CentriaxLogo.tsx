@@ -14,19 +14,19 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   collapsedIconOnly = false,
 }) => {
   const fontSizes = {
-    sm: 'text-[18px]',
+    sm: 'text-[17px]',
     md: 'text-[24px]',
     lg: 'text-[30px]',
   };
 
   const gapSizes = {
-    sm: 'gap-2.5',
+    sm: 'gap-2',
     md: 'gap-3',
     lg: 'gap-3.5',
   };
 
   const paddingLeftSizes = {
-    sm: 'pl-2.5',
+    sm: 'pl-2',
     md: 'pl-3',
     lg: 'pl-3.5',
   };
@@ -38,7 +38,7 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   };
 
   const subFontSizes = {
-    sm: 'text-[9.5px]',
+    sm: 'text-[8.5px]',
     md: 'text-[10px]',
     lg: 'text-[11px]',
   };
@@ -73,10 +73,10 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
       {showSubtitle && (
         <div className={`flex items-center ${paddingLeftSizes[size]} border-l border-[#0E1B2B]/20 dark:border-[#E6EAED]/20 min-w-0`}>
           <div className="min-w-0 flex flex-col justify-center leading-tight">
-            <span className={`font-bold ${sgcFontSizes[size]} tracking-tight text-[#0E1B2B] dark:text-[#E6EAED] leading-none mb-0.5`}>
+            <span className={`font-bold ${sgcFontSizes[size]} tracking-tight text-[#0E1B2B] dark:text-[#E6EAED] leading-none mb-0.5 whitespace-nowrap`}>
               SGC
             </span>
-            <span className={`${subFontSizes[size]} font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight`}>
+            <span className={`${subFontSizes[size]} font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight whitespace-nowrap`}>
               Sistema de Gestão Condominial
             </span>
           </div>
