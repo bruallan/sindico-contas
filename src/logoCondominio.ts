@@ -7,5 +7,11 @@ export function getCondoLogo(
   customLogoUrl?: string | null
 ): string | null {
   if (customLogoUrl) return customLogoUrl;
+  if (condoName) {
+    const normalized = condoName.toLowerCase();
+    if (normalized.includes('lar veredas') || normalized.includes('veredas')) {
+      return LAR_VEREDAS_LOGO;
+    }
+  }
   return LAR_VEREDAS_LOGO;
 }
