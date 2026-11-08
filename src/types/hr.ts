@@ -3,7 +3,8 @@ export type EmployeeRoleCategory =
   | 'ronda'
   | 'cobertura'
   | 'zeladoria'
-  | 'limpeza';
+  | 'limpeza'
+  | 'administrativo';
 
 export type EmployeeStatus = 'ativo' | 'ferias' | 'afastado' | 'desligado';
 

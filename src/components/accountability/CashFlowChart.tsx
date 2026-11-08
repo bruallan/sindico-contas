@@ -140,9 +140,10 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
   const zeroLineColor = isDark ? 'rgba(230, 234, 237, 0.32)' : 'rgba(14, 27, 43, 0.28)';
 
   // Barra de receitas realizadas (+Y sólido) com rótulo
-  const renderIncomeRealizedBar = (props: BarShapeProps): React.ReactElement<SVGElement> | null => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } = props ?? {};
-    if (!width || height <= 0 || !value || value <= 0) return null;
+  const renderIncomeRealizedBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
+    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+      ((rawProps ?? {}) as BarShapeProps);
+    if (!width || height <= 0 || !value || value <= 0) return <g />;
 
     const cx = x + width / 2;
     const numVal = Number(value);
@@ -174,9 +175,10 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
   };
 
   // Barra de receitas pendentes (+Y pastel empilhado) com rótulo no topo total
-  const renderIncomePendingBar = (props: BarShapeProps): React.ReactElement<SVGElement> | null => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } = props ?? {};
-    if (!width || height <= 0 || !value || value <= 0) return null;
+  const renderIncomePendingBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
+    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+      ((rawProps ?? {}) as BarShapeProps);
+    if (!width || height <= 0 || !value || value <= 0) return <g />;
 
     const cx = x + width / 2;
     const total = Number(payload?.incomeRealized ?? 0) + Number(value);
@@ -207,9 +209,10 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
   };
 
   // Barra de saídas realizadas (-Y sólido) com rótulo
-  const renderExpenseRealizedBar = (props: BarShapeProps): React.ReactElement<SVGElement> | null => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } = props ?? {};
-    if (!width || height <= 0 || !value || value >= 0) return null;
+  const renderExpenseRealizedBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
+    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+      ((rawProps ?? {}) as BarShapeProps);
+    if (!width || height <= 0 || !value || value >= 0) return <g />;
 
     const cx = x + width / 2;
     const numVal = Number(value);
@@ -242,9 +245,10 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
   };
 
   // Barra de saídas pendentes (-Y pastel empilhado) com rótulo no fundo total
-  const renderExpensePendingBar = (props: BarShapeProps): React.ReactElement<SVGElement> | null => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } = props ?? {};
-    if (!width || height <= 0 || !value || value >= 0) return null;
+  const renderExpensePendingBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
+    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+      ((rawProps ?? {}) as BarShapeProps);
+    if (!width || height <= 0 || !value || value >= 0) return <g />;
 
     const cx = x + width / 2;
     const totalNeg = Number(payload?.expenseRealizedNeg ?? 0) + Number(value);
