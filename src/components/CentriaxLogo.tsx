@@ -76,9 +76,17 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
             <span className={`font-bold ${sgcFontSizes[size]} tracking-tight text-[#0E1B2B] dark:text-[#E6EAED] leading-none mb-0.5 whitespace-nowrap`}>
               SGC
             </span>
-            <span className={`${subFontSizes[size]} font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight whitespace-nowrap`}>
-              Sistema de Gestão Condominial
-            </span>
+            {size === 'sm' ? (
+              <span className="text-[8.5px] font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-[1.15]">
+                Sistema de Gestão
+                <br />
+                Condominial
+              </span>
+            ) : (
+              <span className={`${subFontSizes[size]} font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight whitespace-nowrap`}>
+                Sistema de Gestão Condominial
+              </span>
+            )}
           </div>
         </div>
       )}

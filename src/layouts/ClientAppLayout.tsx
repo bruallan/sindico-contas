@@ -106,13 +106,13 @@ export const ClientAppLayout: React.FC = () => {
       {/* Sidebar Lateral Retrátil */}
       <aside
         className={`shrink-0 flex flex-col border-r border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 bg-white dark:bg-[#15263B] transition-[width] duration-200 ease-out ${
-          collapsed ? 'w-16' : 'w-72'
+          collapsed ? 'w-16' : 'w-60'
         }`}
       >
         {/* Topo da Sidebar: Logo Centriax + Botão Recolher */}
-        <div className="h-16 px-4 flex items-center justify-between border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 overflow-hidden">
+        <div className="h-16 px-3 flex items-center justify-between border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 overflow-hidden">
           {!collapsed ? (
-            <div className="min-w-0 flex-1 pr-2">
+            <div className="min-w-0 flex-1 pr-1.5">
               <CentriaxLogo size="sm" />
             </div>
           ) : (
@@ -141,7 +141,7 @@ export const ClientAppLayout: React.FC = () => {
         </div>
 
         {/* Links de Navegação */}
-        <nav className="flex-1 py-4 px-2.5 space-y-1">
+        <nav className="flex-1 py-4 px-2 space-y-1">
           {navItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -152,7 +152,7 @@ export const ClientAppLayout: React.FC = () => {
                 title={collapsed ? item.label : undefined}
                 className={({ isActive }) =>
                   `relative flex items-center rounded-lg h-10 text-xs font-medium transition-colors ${
-                    collapsed ? 'justify-center px-0' : 'px-3 gap-3'
+                    collapsed ? 'justify-center px-0' : 'px-2.5 gap-2.5'
                   } ${
                     isActive
                       ? 'bg-[#1A73E9] text-white shadow-sm'
