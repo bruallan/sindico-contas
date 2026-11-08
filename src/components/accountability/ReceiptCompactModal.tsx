@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ExternalLink, FileText } from 'lucide-react';
 import { Transaction } from '@/types/database';
 import { formatCurrencyBRL, formatDateBR, formatYearMonthShort } from '@/utils/formatters';
@@ -26,10 +27,10 @@ export const ReceiptCompactModal: React.FC<ReceiptCompactModalProps> = ({
     (current.receipt_url!.toLowerCase().includes('.pdf') ||
       current.receipt_url!.startsWith('data:application/pdf'));
 
-  return (
+  return createPortal(
     <div
       onClick={onClose}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0E1B2B]/60 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[10000] flex items-center justify-center p-4 bg-[#0E1B2B]/60 backdrop-blur-[2px]"
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -161,6 +162,7 @@ export const ReceiptCompactModal: React.FC<ReceiptCompactModalProps> = ({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
