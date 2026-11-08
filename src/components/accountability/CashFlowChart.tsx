@@ -141,22 +141,26 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
 
   // Barra de receitas realizadas (+Y sólido) com rótulo
   const renderIncomeRealizedBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+    const { x = 0, y = 0, width = 0, height = 0, fill, payload, index = 0 } =
       ((rawProps ?? {}) as BarShapeProps);
-    if (!width || height <= 0 || !value || value <= 0) return <g />;
+    const rectHeight = Math.abs(height);
+    if (!width || rectHeight <= 0) return <g />;
 
-    const cx = x + width / 2;
-    const numVal = Number(value);
+    const realized = Number(payload?.incomeRealized ?? 0);
     const pending = Number(payload?.incomePending ?? 0);
-    const text = formatValueK(numVal);
+    if (realized <= 0) return <g />;
+
+    const topY = Math.min(y, y + height);
+    const cx = x + width / 2;
+    const text = formatValueK(realized);
 
     return (
       <g key={`bar-in-realized-${index}`}>
-        <rect x={x} y={y} width={width} height={height} fill={fill} />
+        <rect x={x} y={topY} width={width} height={rectHeight} fill={fill} />
         {text && (
           <text
             x={cx}
-            y={pending > 0 ? y + 11 : y - 6}
+            y={pending > 0 ? topY + 11 : topY - 6}
             textAnchor="middle"
             fontSize={10}
             fontWeight={600}
@@ -176,21 +180,27 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
 
   // Barra de receitas pendentes (+Y pastel empilhado) com rótulo no topo total
   const renderIncomePendingBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+    const { x = 0, y = 0, width = 0, height = 0, fill, payload, index = 0 } =
       ((rawProps ?? {}) as BarShapeProps);
-    if (!width || height <= 0 || !value || value <= 0) return <g />;
+    const rectHeight = Math.abs(height);
+    if (!width || rectHeight <= 0) return <g />;
 
+    const realized = Number(payload?.incomeRealized ?? 0);
+    const pending = Number(payload?.incomePending ?? 0);
+    if (pending <= 0) return <g />;
+
+    const topY = Math.min(y, y + height);
     const cx = x + width / 2;
-    const total = Number(payload?.incomeRealized ?? 0) + Number(value);
+    const total = realized + pending;
     const text = formatValueK(total);
 
     return (
       <g key={`bar-in-pending-${index}`}>
-        <rect x={x} y={y} width={width} height={height} fill={fill} />
+        <rect x={x} y={topY} width={width} height={rectHeight} fill={fill} />
         {text && (
           <text
             x={cx}
-            y={y - 6}
+            y={topY - 6}
             textAnchor="middle"
             fontSize={10}
             fontWeight={600}
@@ -210,19 +220,23 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
 
   // Barra de saídas realizadas (-Y sólido) com rótulo
   const renderExpenseRealizedBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+    const { x = 0, y = 0, width = 0, height = 0, fill, payload, index = 0 } =
       ((rawProps ?? {}) as BarShapeProps);
-    if (!width || height <= 0 || !value || value >= 0) return <g />;
+    const rectHeight = Math.abs(height);
+    if (!width || rectHeight <= 0) return <g />;
 
-    const cx = x + width / 2;
-    const numVal = Number(value);
+    const realizedNeg = Number(payload?.expenseRealizedNeg ?? 0);
     const pendingNeg = Number(payload?.expensePendingNeg ?? 0);
-    const bottomY = y + height;
-    const text = formatValueK(numVal);
+    if (realizedNeg >= 0) return <g />;
+
+    const topY = Math.min(y, y + height);
+    const bottomY = Math.max(y, y + height);
+    const cx = x + width / 2;
+    const text = formatValueK(realizedNeg);
 
     return (
       <g key={`bar-out-realized-${index}`}>
-        <rect x={x} y={y} width={width} height={height} fill={fill} />
+        <rect x={x} y={topY} width={width} height={rectHeight} fill={fill} />
         {text && (
           <text
             x={cx}
@@ -246,18 +260,24 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
 
   // Barra de saídas pendentes (-Y pastel empilhado) com rótulo no fundo total
   const renderExpensePendingBar = (rawProps: unknown): React.ReactElement<SVGElement> => {
-    const { x = 0, y = 0, width = 0, height = 0, fill, value = 0, payload, index = 0 } =
+    const { x = 0, y = 0, width = 0, height = 0, fill, payload, index = 0 } =
       ((rawProps ?? {}) as BarShapeProps);
-    if (!width || height <= 0 || !value || value >= 0) return <g />;
+    const rectHeight = Math.abs(height);
+    if (!width || rectHeight <= 0) return <g />;
 
+    const realizedNeg = Number(payload?.expenseRealizedNeg ?? 0);
+    const pendingNeg = Number(payload?.expensePendingNeg ?? 0);
+    if (pendingNeg >= 0) return <g />;
+
+    const topY = Math.min(y, y + height);
+    const bottomY = Math.max(y, y + height);
     const cx = x + width / 2;
-    const totalNeg = Number(payload?.expenseRealizedNeg ?? 0) + Number(value);
-    const bottomY = y + height;
+    const totalNeg = realizedNeg + pendingNeg;
     const text = formatValueK(totalNeg);
 
     return (
       <g key={`bar-out-pending-${index}`}>
-        <rect x={x} y={y} width={width} height={height} fill={fill} />
+        <rect x={x} y={topY} width={width} height={rectHeight} fill={fill} />
         {text && (
           <text
             x={cx}
