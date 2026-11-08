@@ -13,10 +13,34 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   size = 'md',
   collapsedIconOnly = false,
 }) => {
-  const svgHeights = {
-    sm: 'h-[21px]',
-    md: 'h-7',
-    lg: 'h-9',
+  const fontSizes = {
+    sm: 'text-[18px]',
+    md: 'text-[24px]',
+    lg: 'text-[30px]',
+  };
+
+  const gapSizes = {
+    sm: 'gap-2.5',
+    md: 'gap-3',
+    lg: 'gap-3.5',
+  };
+
+  const paddingLeftSizes = {
+    sm: 'pl-2.5',
+    md: 'pl-3',
+    lg: 'pl-3.5',
+  };
+
+  const sgcFontSizes = {
+    sm: 'text-xs',
+    md: 'text-[13px]',
+    lg: 'text-sm',
+  };
+
+  const subFontSizes = {
+    sm: 'text-[9.5px]',
+    md: 'text-[10px]',
+    lg: 'text-[11px]',
   };
 
   // Modo ícone compacto para menu lateral recolhido
@@ -34,38 +58,25 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   }
 
   return (
-    <div className={`inline-flex items-center gap-2.5 select-none min-w-0 ${className}`}>
-      {/* Logo Centriax Vetorial Nativa em Alta Resolução (SVG) */}
-      <div className="flex items-center shrink-0">
-        <svg
-          viewBox="0 0 135 30"
-          className={`${svgHeights[size]} w-auto block`}
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-label="Centriax"
+    <div className={`inline-flex items-center ${gapSizes[size]} select-none min-w-0 ${className}`}>
+      {/* Logo Centriax Tipográfica Nativa em Alta Definição */}
+      <div className="flex items-center shrink-0 leading-none">
+        <span
+          className={`${fontSizes[size]} font-bold select-none leading-none tracking-[-0.035em]`}
+          style={{ fontFamily: "Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
         >
-          <text
-            x="0"
-            y="23"
-            fontFamily="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-            fontSize="26"
-            fontWeight="700"
-            letterSpacing="-0.6px"
-          >
-            <tspan className="fill-[#3D3D42] dark:fill-[#F3F4F6]">centria</tspan>
-            <tspan className="fill-[#1A73E9] dark:fill-[#38BDF8]">x</tspan>
-          </text>
-        </svg>
+          <span className="text-[#3D3D42] dark:text-[#F3F4F6]">centria</span>
+          <span className="text-[#1A73E9] dark:text-[#38BDF8]">x</span>
+        </span>
       </div>
 
       {showSubtitle && (
-        <div className="flex items-center gap-2 pl-2 border-l border-[#0E1B2B]/20 dark:border-[#E6EAED]/20 min-w-0">
+        <div className={`flex items-center ${paddingLeftSizes[size]} border-l border-[#0E1B2B]/20 dark:border-[#E6EAED]/20 min-w-0`}>
           <div className="min-w-0 flex flex-col justify-center leading-tight">
-            <span className="font-bold text-xs tracking-tight text-[#0E1B2B] dark:text-[#E6EAED] leading-none mb-0.5">
+            <span className={`font-bold ${sgcFontSizes[size]} tracking-tight text-[#0E1B2B] dark:text-[#E6EAED] leading-none mb-0.5`}>
               SGC
             </span>
-            <span className="text-[9.5px] font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight">
+            <span className={`${subFontSizes[size]} font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight`}>
               Sistema de Gestão Condominial
             </span>
           </div>
