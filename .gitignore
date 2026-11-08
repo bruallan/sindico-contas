@@ -2,9 +2,15 @@ node_modules
 dist
 dist-ssr
 pnpm-lock.yaml
+package-lock.json
 *.local
 .env
 .env.*
 !.env.example
 scratch/
 generate_favicons.js
+*.mjs
+*.py
+*.docx
+/centriax_logo*.png
+public/test.txt

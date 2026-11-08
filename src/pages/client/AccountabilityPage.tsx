@@ -1,9 +1,12 @@
 import React, { useMemo, useState } from 'react';
-import { Calendar } from 'lucide-react';
+import { Presentation } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { CashFlowChart } from '@/components/accountability/CashFlowChart';
 import { HierarchicalDreTable } from '@/components/accountability/HierarchicalDreTable';
 import { ReceiptCompactModal } from '@/components/accountability/ReceiptCompactModal';
+import { MonthYearSelector } from '@/components/accountability/MonthYearSelector';
+import { AccountabilityPresentationMode } from '@/components/accountability/AccountabilityPresentationMode';
 import { MonthlyCashFlowPoint, Transaction } from '@/types/database';
 import {
   formatYearMonthShort,
@@ -12,84 +15,13 @@ import {
   getTransactionYearMonth,
 } from '@/utils/formatters';
 
-const MONTHS_OPTIONS = [
-  { value: '01', label: 'Jan' },
-  { value: '02', label: 'Fev' },
-  { value: '03', label: 'Mar' },
-  { value: '04', label: 'Abr' },
-  { value: '05', label: 'Mai' },
-  { value: '06', label: 'Jun' },
-  { value: '07', label: 'Jul' },
-  { value: '08', label: 'Ago' },
-  { value: '09', label: 'Set' },
-  { value: '10', label: 'Out' },
-  { value: '11', label: 'Nov' },
-  { value: '12', label: 'Dez' },
-];
-
-interface MonthYearSelectorProps {
-  label: string;
-  value: string; // YYYY-MM
-  years: number[];
-  onChange: (nextYM: string) => void;
-}
-
-const MonthYearSelector: React.FC<MonthYearSelectorProps> = ({
-  label,
-  value,
-  years,
-  onChange,
-}) => {
-  const [yStr, mStr] = value.split('-');
-
-  return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs opacity-65 whitespace-nowrap">{label}</span>
-      <div className="inline-flex items-center h-9 rounded-lg bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 px-2.5 gap-1.5">
-        <Calendar className="h-3.5 w-3.5 text-[#1A73E9] shrink-0" />
-        <select
-          aria-label={`${label} Mês`}
-          value={mStr}
-          onChange={(e) => onChange(`${yStr}-${e.target.value}`)}
-          className="bg-transparent text-xs font-medium focus:outline-none cursor-pointer pr-1"
-        >
-          {MONTHS_OPTIONS.map((m) => (
-            <option
-              key={m.value}
-              value={m.value}
-              className="bg-white dark:bg-[#15263B] text-[#0E1B2B] dark:text-[#E6EAED]"
-            >
-              {m.label}
-            </option>
-          ))}
-        </select>
-        <span className="opacity-30 text-xs">/</span>
-        <select
-          aria-label={`${label} Ano`}
-          value={yStr}
-          onChange={(e) => onChange(`${e.target.value}-${mStr}`)}
-          className="bg-transparent text-xs font-medium tabular-nums focus:outline-none cursor-pointer"
-        >
-          {years.map((yr) => (
-            <option
-              key={yr}
-              value={String(yr)}
-              className="bg-white dark:bg-[#15263B] text-[#0E1B2B] dark:text-[#E6EAED]"
-            >
-              {yr}
-            </option>
-          ))}
-        </select>
-      </div>
-    </div>
-  );
-};
-
 export const AccountabilityPage: React.FC = () => {
+  const { session } = useAuth();
   const { categories, transactions, loading } = useFinancialData();
 
   const [startYM, setStartYM] = useState<string>(() => getRelativeYearMonth(-3));
   const [endYM, setEndYM] = useState<string>(() => getRelativeYearMonth(2));
+  const [isPresentationOpen, setIsPresentationOpen] = useState<boolean>(false);
 
   const [receiptModalState, setReceiptModalState] = useState<{
     categoryName: string;
@@ -195,9 +127,22 @@ export const AccountabilityPage: React.FC = () => {
 
   return (
     <div className="space-y-5">
-      {/* Topo: Filtro de Período (Mês/Ano Inicial e Mês/Ano Final) */}
+      {/* Topo: Título + Botão Apresentar + Filtro de Período */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-base font-semibold tracking-tight">Prestação de Contas</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-base font-semibold tracking-tight">Prestação de Contas</h1>
+
+          {/* Botão de Apresentar para Assembleias (Oculta menu lateral e tela cheia) */}
+          <button
+            type="button"
+            onClick={() => setIsPresentationOpen(true)}
+            className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg bg-[#1A73E9] hover:bg-[#155fc0] text-white text-xs font-semibold shadow-xs hover:shadow transition-all cursor-pointer group"
+            title="Abrir apresentação em tela cheia para assembleia (sem menu lateral)"
+          >
+            <Presentation className="h-4 w-4 group-hover:scale-110 transition-transform" />
+            <span>Apresentar</span>
+          </button>
+        </div>
 
         <div className="flex flex-wrap items-center gap-4">
           <MonthYearSelector
@@ -233,6 +178,25 @@ export const AccountabilityPage: React.FC = () => {
           yearMonth={receiptModalState.yearMonth}
           transactions={receiptModalState.transactions}
           onClose={() => setReceiptModalState(null)}
+        />
+      )}
+
+      {/* Modo de Apresentação em Tela Cheia para Assembleias (Sem menu lateral) */}
+      {isPresentationOpen && (
+        <AccountabilityPresentationMode
+          condoName={session?.client?.condo_name}
+          syndicName={session?.client?.syndic_name}
+          startYM={startYM}
+          endYM={endYM}
+          availableYears={availableYears}
+          months={months}
+          categories={categories}
+          transactions={transactions}
+          chartData={chartData}
+          onStartChange={handleStartChange}
+          onEndChange={handleEndChange}
+          onClose={() => setIsPresentationOpen(false)}
+          onOpenReceiptModal={(payload) => setReceiptModalState(payload)}
         />
       )}
     </div>

@@ -23,6 +23,8 @@ interface HierarchicalDreTableProps {
     yearMonth: string;
     transactions: Transaction[];
   }) => void;
+  expandedIds?: Set<string>;
+  onExpandedIdsChange?: (next: Set<string>) => void;
 }
 
 function emptyCell(): CellAggregation {
@@ -34,9 +36,30 @@ export const HierarchicalDreTable: React.FC<HierarchicalDreTableProps> = ({
   transactions,
   months,
   onOpenReceiptModal,
+  expandedIds: controlledExpandedIds,
+  onExpandedIdsChange,
 }) => {
   // Estado inicial oculto: todos os níveis recolhidos (exibe apenas Total de Entradas, Total de Saídas e Saldo)
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(() => new Set());
+  const [internalExpandedIds, setInternalExpandedIds] = useState<Set<string>>(() => new Set());
+  const expandedIds = controlledExpandedIds ?? internalExpandedIds;
+
+  const setExpandedIds = (updater: Set<string> | ((prev: Set<string>) => Set<string>)) => {
+    const next = typeof updater === 'function' ? updater(expandedIds) : updater;
+    if (onExpandedIdsChange) {
+      onExpandedIdsChange(next);
+    } else {
+      setInternalExpandedIds(next);
+    }
+  };
+
+  const handleExpandAll = () => {
+    const all = new Set<string>(['MASTER_INCOME', 'MASTER_EXPENSE', ...categories.map((c) => c.id)]);
+    setExpandedIds(all);
+  };
+
+  const handleCollapseAll = () => {
+    setExpandedIds(new Set());
+  };
 
   const toggleExpand = (id: string) => {
     setExpandedIds((prev) => {
@@ -309,8 +332,28 @@ export const HierarchicalDreTable: React.FC<HierarchicalDreTableProps> = ({
         <table className="w-full border-collapse text-left">
           <thead>
             <tr className="border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 bg-[#E6EAED]/45 dark:bg-[#0E1B2B]/50">
-              <th className="sticky left-0 z-20 bg-[#EDF0F2] dark:bg-[#112033] py-3 px-4 text-xs font-semibold tracking-tight min-w-[250px]">
-                Hierarquia de Contas
+              <th className="sticky left-0 z-20 bg-[#EDF0F2] dark:bg-[#112033] py-2.5 px-4 text-xs font-semibold tracking-tight min-w-[260px]">
+                <div className="flex items-center justify-between gap-2">
+                  <span>Hierarquia de Contas</span>
+                  <div className="flex items-center gap-1.5 font-normal">
+                    <button
+                      type="button"
+                      onClick={handleExpandAll}
+                      title="Expandir todas as contas analíticas"
+                      className="text-[10px] px-2 py-0.5 rounded bg-[#0E1B2B]/5 dark:bg-[#E6EAED]/10 hover:bg-[#1A73E9]/15 hover:text-[#1A73E9] transition-colors"
+                    >
+                      Expandir Tudo
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCollapseAll}
+                      title="Recolher todas as contas"
+                      className="text-[10px] px-2 py-0.5 rounded bg-[#0E1B2B]/5 dark:bg-[#E6EAED]/10 hover:bg-[#1A73E9]/15 hover:text-[#1A73E9] transition-colors"
+                    >
+                      Recolher Tudo
+                    </button>
+                  </div>
+                </div>
               </th>
               {months.map((m) => (
                 <th

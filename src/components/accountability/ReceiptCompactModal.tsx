@@ -29,7 +29,7 @@ export const ReceiptCompactModal: React.FC<ReceiptCompactModalProps> = ({
   return (
     <div
       onClick={onClose}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#0E1B2B]/60 backdrop-blur-[2px]"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-[#0E1B2B]/60 backdrop-blur-[2px]"
     >
       <div
         onClick={(e) => e.stopPropagation()}
