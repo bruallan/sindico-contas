@@ -45,7 +45,7 @@ export const AdminLoginPage: React.FC = () => {
             <div>
               <h1 className="text-lg font-semibold tracking-tight">Console Administrativo</h1>
               <p className="text-xs text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 mt-1">
-                SGS — Gestão Central e Autorização de Condomínios
+                SGC — Gestão Central e Autorização de Condomínios
               </p>
             </div>
             <div className="h-8 w-8 rounded-lg bg-[#0E1B2B] dark:bg-[#1A73E9] flex items-center justify-center text-white shrink-0">

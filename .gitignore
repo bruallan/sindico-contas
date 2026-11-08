@@ -6,3 +6,5 @@ pnpm-lock.yaml
 .env
 .env.*
 !.env.example
+scratch/
+generate_favicons.js

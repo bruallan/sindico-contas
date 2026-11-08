@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="cxBlue" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38BDF8" />
+      <stop offset="100%" stop-color="#1A73E9" />
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#15263B" />
+      <stop offset="100%" stop-color="#0E1B2B" />
+    </linearGradient>
+  </defs>
+  <!-- Background Badge -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)" />
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#1A73E9" stroke-opacity="0.35" stroke-width="1.5" />
+  
+  <!-- Monogram CX (CentriaX) -->
+  <text
+    x="32"
+    y="33"
+    text-anchor="middle"
+    dominant-baseline="central"
+    font-family="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+    font-size="32"
+    font-weight="900"
+    letter-spacing="-1.2"
+  >
+    <tspan fill="#FFFFFF">C</tspan><tspan fill="url(#cxBlue)">X</tspan>
+  </text>
+</svg>

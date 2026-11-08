@@ -105,15 +105,25 @@ export const ClientAppLayout: React.FC = () => {
       {/* Sidebar Lateral Retrátil */}
       <aside
         className={`shrink-0 flex flex-col border-r border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 bg-white dark:bg-[#15263B] transition-[width] duration-200 ease-out ${
-          collapsed ? 'w-16' : 'w-64'
+          collapsed ? 'w-16' : 'w-72'
         }`}
       >
         {/* Topo da Sidebar: Logo Centriax + Botão Recolher */}
-        <div className="h-16 px-3.5 flex items-center justify-between border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10">
+        <div className="h-16 px-4 flex items-center justify-between border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 overflow-hidden">
           {!collapsed ? (
-            <CentriaxLogo size="sm" />
+            <div className="min-w-0 flex-1 pr-2">
+              <CentriaxLogo size="sm" />
+            </div>
           ) : (
-            <CentriaxLogo size="sm" showSubtitle={false} collapsedIconOnly className="mx-auto" />
+            <button
+              type="button"
+              onClick={toggleSidebar}
+              title="Expandir menu lateral"
+              aria-label="Expandir menu lateral"
+              className="mx-auto block hover:opacity-80 transition-opacity"
+            >
+              <CentriaxLogo size="sm" showSubtitle={false} collapsedIconOnly />
+            </button>
           )}
 
           <button
@@ -121,11 +131,11 @@ export const ClientAppLayout: React.FC = () => {
             onClick={toggleSidebar}
             title={collapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
             aria-label={collapsed ? 'Expandir menu lateral' : 'Recolher menu lateral'}
-            className={`h-8 w-8 rounded-lg inline-flex items-center justify-center hover:bg-[#0E1B2B]/5 dark:hover:bg-[#E6EAED]/10 transition-colors ${
+            className={`h-8 w-8 shrink-0 rounded-lg inline-flex items-center justify-center text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 hover:bg-[#0E1B2B]/5 dark:hover:bg-[#E6EAED]/10 transition-colors ${
               collapsed ? 'hidden' : ''
             }`}
           >
-            <PanelLeftClose className="h-4 w-4 opacity-80" />
+            <PanelLeftClose className="h-4 w-4" />
           </button>
         </div>
 
@@ -196,6 +206,18 @@ export const ClientAppLayout: React.FC = () => {
         {/* Cabeçalho */}
         <header className="h-16 px-6 border-b border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 bg-white dark:bg-[#15263B] flex items-center justify-between gap-4">
           <div className="min-w-0 flex items-center gap-3">
+            {collapsed && (
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                title="Expandir menu lateral"
+                aria-label="Expandir menu lateral"
+                className="h-8 w-8 shrink-0 rounded-lg inline-flex items-center justify-center text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 hover:bg-[#0E1B2B]/5 dark:hover:bg-[#E6EAED]/10 transition-colors mr-0.5"
+              >
+                <PanelLeftOpen className="h-4 w-4" />
+              </button>
+            )}
+
             <div className="h-8 w-8 rounded-lg bg-[#1A73E9]/10 text-[#1A73E9] flex items-center justify-center shrink-0">
               <Building2 className="h-4 w-4" />
             </div>
@@ -221,7 +243,7 @@ export const ClientAppLayout: React.FC = () => {
                 <p className="text-sm font-semibold truncate leading-tight">
                   {session?.client?.condo_name ?? 'Condomínio'}
                 </p>
-                <p className="text-[11px] text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 truncate">
+                <p className="text-[11px] text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 truncate mt-0.5">
                   Síndico(a): {session?.client?.syndic_name ?? '—'}
                 </p>
               </div>

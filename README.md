@@ -1,4 +1,4 @@
-# SGS — Sistema de Gestão Sindical (Centriax)
+# SGC — Sistema de Gestão Condominial (Centriax)
 
 Sistema SaaS para gestão financeira condominial e prestação de contas transparente para síndicos, construído com **React + Vite, TypeScript, Tailwind CSS, Lucide Icons, Recharts e Supabase**.
 

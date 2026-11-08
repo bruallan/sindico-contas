@@ -36,7 +36,7 @@ export const WelcomePage: React.FC = () => {
       {/* Cartão Minimalista de Boas-vindas */}
       <div className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-7">
         <p className="text-xs uppercase tracking-wider text-[#1A73E9] font-semibold mb-1.5">
-          SGS — Sistema de Gestão Sindical
+          SGC — Sistema de Gestão Condominial
         </p>
         <h1 className="text-xl font-semibold tracking-tight">
           Bem-vindo(a), {session?.client?.syndic_name}

@@ -14,7 +14,7 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   collapsedIconOnly = false,
 }) => {
   const svgHeights = {
-    sm: 'h-6',
+    sm: 'h-[21px]',
     md: 'h-7',
     lg: 'h-9',
   };
@@ -24,7 +24,7 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
     return (
       <div
         className={`h-9 w-9 rounded-lg bg-white dark:bg-[#15263B] border border-[#0E1B2B]/15 dark:border-[#E6EAED]/15 shadow-sm flex items-center justify-center select-none ${className}`}
-        title="Centriax - SGS"
+        title="Centriax - SGC"
       >
         <span className="font-extrabold text-sm tracking-tight text-[#0E1B2B] dark:text-[#E6EAED]">
           c<span className="text-[#1A73E9]">x</span>
@@ -34,7 +34,7 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
   }
 
   return (
-    <div className={`inline-flex items-center gap-3 select-none ${className}`}>
+    <div className={`inline-flex items-center gap-2.5 select-none min-w-0 ${className}`}>
       {/* Logo Centriax Vetorial Nativa em Alta Resolução (SVG) */}
       <div className="flex items-center shrink-0">
         <svg
@@ -60,13 +60,13 @@ export const CentriaxLogo: React.FC<CentriaxLogoProps> = ({
       </div>
 
       {showSubtitle && (
-        <div className="flex items-center gap-2 pl-1 border-l border-[#0E1B2B]/20 dark:border-[#E6EAED]/20">
+        <div className="flex items-center gap-2 pl-2 border-l border-[#0E1B2B]/20 dark:border-[#E6EAED]/20 min-w-0">
           <div className="min-w-0 flex flex-col justify-center leading-tight">
-            <span className="font-bold text-sm tracking-tight text-[#0E1B2B] dark:text-[#E6EAED]">
-              SGS
+            <span className="font-bold text-xs tracking-tight text-[#0E1B2B] dark:text-[#E6EAED] leading-none mb-0.5">
+              SGC
             </span>
-            <span className="text-[10px] font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 truncate">
-              Sistema de Gestão Sindical
+            <span className="text-[9.5px] font-medium text-[#0E1B2B]/70 dark:text-[#E6EAED]/70 leading-tight">
+              Sistema de Gestão Condominial
             </span>
           </div>
         </div>

@@ -630,7 +630,7 @@ export function exportOfficialSchedulePdf(params: ExportSchedulePdfParams): void
     });
 
     p2.drawText(
-      `SGS Centriax • Escala Oficial Validada em ${validatedAtFormatted} e Exportada em ${exportedAtFormatted} • Protocolo ${authCode}`,
+      `SGC Centriax • Escala Oficial Validada em ${validatedAtFormatted} e Exportada em ${exportedAtFormatted} • Protocolo ${authCode}`,
       26,
       576,
       { font: 'F1', size: 7, color: [100, 116, 139] }

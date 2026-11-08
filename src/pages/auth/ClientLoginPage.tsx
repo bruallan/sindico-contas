@@ -90,7 +90,7 @@ export const ClientLoginPage: React.FC = () => {
               <div className="mb-6">
                 <h1 className="text-lg font-semibold tracking-tight">Acesso do Síndico</h1>
                 <p className="text-xs text-[#0E1B2B]/60 dark:text-[#E6EAED]/60 mt-1">
-                  SGS — Sistema de Gestão Sindical e Prestação de Contas
+                  SGC — Sistema de Gestão Condominial e Prestação de Contas
                 </p>
               </div>
 
