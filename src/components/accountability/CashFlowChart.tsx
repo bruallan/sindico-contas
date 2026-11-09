@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   ComposedChart,
   Bar,
@@ -60,10 +60,11 @@ const formatValueK = (val: number, isVertex = false): string => {
 interface CustomTooltipProps {
   active?: boolean;
   payload?: Array<{ payload: MonthlyCashFlowPoint }>;
+  isCtrlPressed?: boolean;
 }
 
-const MinimalCashFlowTooltip: React.FC<CustomTooltipProps> = ({ active, payload }) => {
-  if (!active || !payload || payload.length === 0) return null;
+const MinimalCashFlowTooltip: React.FC<CustomTooltipProps> = ({ active, payload, isCtrlPressed }) => {
+  if (!isCtrlPressed || !active || !payload || payload.length === 0) return null;
   const point = payload[0].payload;
 
   return (
@@ -121,6 +122,35 @@ const MinimalCashFlowTooltip: React.FC<CustomTooltipProps> = ({ active, payload 
 export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
   const { theme } = useTheme();
   const isDark = theme === 'dark';
+  const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Control' || e.key === 'Meta' || e.ctrlKey || e.metaKey) {
+        setIsCtrlPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (!e.ctrlKey && !e.metaKey) {
+        setIsCtrlPressed(false);
+      }
+    };
+
+    const handleWindowBlur = () => {
+      setIsCtrlPressed(false);
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    window.addEventListener('blur', handleWindowBlur);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      window.removeEventListener('blur', handleWindowBlur);
+    };
+  }, []);
 
   // Domínio simétrico [-max, +max] posiciona o ponto 0 exatamente como linha central de referência
   const symmetricMax = useMemo(() => {
@@ -376,7 +406,24 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
   };
 
   return (
-    <section className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-5">
+    <section
+      className="rounded-xl bg-white dark:bg-[#15263B] border border-[#0E1B2B]/10 dark:border-[#E6EAED]/10 p-5"
+      onMouseMove={(e) => {
+        const hasModifier = e.ctrlKey || e.metaKey;
+        if (hasModifier !== isCtrlPressed) {
+          setIsCtrlPressed(hasModifier);
+        }
+      }}
+      onMouseEnter={(e) => {
+        const hasModifier = e.ctrlKey || e.metaKey;
+        if (hasModifier !== isCtrlPressed) {
+          setIsCtrlPressed(hasModifier);
+        }
+      }}
+      onMouseLeave={() => {
+        setIsCtrlPressed(false);
+      }}
+    >
       <div className="h-[340px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart
@@ -404,9 +451,13 @@ export const CashFlowChart: React.FC<CashFlowChartProps> = ({ data }) => {
             />
 
             <Tooltip
-              content={<MinimalCashFlowTooltip />}
+              content={<MinimalCashFlowTooltip isCtrlPressed={isCtrlPressed} />}
               cursor={{
                 fill: isDark ? 'rgba(230, 234, 237, 0.04)' : 'rgba(14, 27, 43, 0.04)',
+              }}
+              wrapperStyle={{
+                visibility: isCtrlPressed ? 'visible' : 'hidden',
+                pointerEvents: 'none',
               }}
             />
 

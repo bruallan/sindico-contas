@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BarChart3,
@@ -12,7 +12,12 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { useFinancialData } from '@/contexts/FinancialDataContext';
 import { useHrData } from '@/contexts/HrDataContext';
-import { formatCurrencyBRL } from '@/utils/formatters';
+import {
+  formatCurrencyBRL,
+  formatYearMonthShort,
+  getRelativeYearMonth,
+  getTransactionYearMonth,
+} from '@/utils/formatters';
 
 export const WelcomePage: React.FC = () => {
   const { session } = useAuth();
@@ -20,13 +25,29 @@ export const WelcomePage: React.FC = () => {
   const { bundle, currentMonthGapsCount, expiredEmployeeDocsCount, urgentCondoDocsCount } =
     useHrData();
 
-  const realizedIncome = transactions
-    .filter((t) => t.status === 'realized' && t.type === 'income')
-    .reduce((acc, t) => acc + t.amount, 0);
+  const currentYM = getRelativeYearMonth(0);
+  const currentMonthLabel = formatYearMonthShort(currentYM);
 
-  const realizedExpense = transactions
-    .filter((t) => t.status === 'realized' && t.type === 'expense')
-    .reduce((acc, t) => acc + t.amount, 0);
+  const currentMonthTransactions = useMemo(
+    () => transactions.filter((t) => getTransactionYearMonth(t) === currentYM),
+    [transactions, currentYM]
+  );
+
+  const realizedIncome = useMemo(
+    () =>
+      currentMonthTransactions
+        .filter((t) => t.status === 'realized' && t.type === 'income')
+        .reduce((acc, t) => acc + t.amount, 0),
+    [currentMonthTransactions]
+  );
+
+  const realizedExpense = useMemo(
+    () =>
+      currentMonthTransactions
+        .filter((t) => t.status === 'realized' && t.type === 'expense')
+        .reduce((acc, t) => acc + t.amount, 0),
+    [currentMonthTransactions]
+  );
 
   const realizedBalance = realizedIncome - realizedExpense;
   const pendingCount = transactions.filter((t) => t.status === 'pending').length;
@@ -52,20 +73,30 @@ export const WelcomePage: React.FC = () => {
         {/* Indicadores Sintéticos */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6 pt-6 border-t border-[#0E1B2B]/10 dark:border-[#E6EAED]/10">
           <div>
-            <span className="text-xs opacity-60">Entradas Efetivadas (Acumulado)</span>
+            <span className="text-xs opacity-60">
+              Entradas Efetivadas (Mês Vigente · {currentMonthLabel})
+            </span>
             <p className="text-lg font-semibold tabular-nums text-[#2AC38B] mt-0.5">
               {formatCurrencyBRL(realizedIncome)}
             </p>
           </div>
           <div>
-            <span className="text-xs opacity-60">Saídas Efetivadas (Acumulado)</span>
+            <span className="text-xs opacity-60">
+              Saídas Efetivadas (Mês Vigente · {currentMonthLabel})
+            </span>
             <p className="text-lg font-semibold tabular-nums text-[#EF4444] mt-0.5">
               {formatCurrencyBRL(realizedExpense)}
             </p>
           </div>
           <div>
-            <span className="text-xs opacity-60">Resultado Realizado</span>
-            <p className="text-lg font-semibold tabular-nums text-[#1A73E9] mt-0.5">
+            <span className="text-xs opacity-60">
+              Resultado Realizado (Mês Vigente · {currentMonthLabel})
+            </span>
+            <p
+              className={`text-lg font-semibold tabular-nums mt-0.5 ${
+                realizedBalance < 0 ? 'text-[#EF4444]' : 'text-[#1A73E9]'
+              }`}
+            >
               {formatCurrencyBRL(realizedBalance)}
             </p>
           </div>
